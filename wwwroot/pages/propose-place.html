@@ -17,11 +17,12 @@
   <style>
     body {
       background: #fbf9f6;
+      font-family: 'Plus Jakarta Sans', sans-serif;
     }
     .wizard-container {
       max-width: 780px;
       margin: 0 auto;
-      padding: 20px 0 60px;
+      padding: 20px 16px 60px;
     }
     .wizard-stepper {
       display: flex;
@@ -72,14 +73,14 @@
       white-space: nowrap;
     }
     .step-node.active .step-circle {
-      background: var(--primary, #c85a2e);
-      border-color: var(--primary, #c85a2e);
+      background: #2563eb;
+      border-color: #2563eb;
       color: #ffffff;
-      box-shadow: 0 0 0 5px rgba(200, 90, 46, 0.18);
+      box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.18);
       transform: scale(1.08);
     }
     .step-node.active .step-label {
-      color: var(--primary, #c85a2e);
+      color: #2563eb;
       font-weight: 800;
     }
     .step-node.completed .step-circle {
@@ -120,8 +121,8 @@
       box-sizing: border-box;
     }
     .form-control:focus {
-      border-color: var(--primary, #c85a2e);
-      box-shadow: 0 0 0 3px rgba(200, 90, 46, 0.12);
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
     }
   </style>
 </head>
@@ -143,6 +144,7 @@
       <!-- Section Title -->
       <div style="margin-bottom: 24px; text-align: center;">
         <h1 style="font-size: 2rem; font-weight: 800; color: var(--text-main); margin: 0 0 4px;">Đề Xuất Địa Điểm</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Chia sẻ những địa điểm ăn uống, du lịch tuyệt vời để cộng đồng cùng trải nghiệm.</p>
       </div>
 
       <!-- 5-STEP WIZARD STEPPER -->
@@ -171,7 +173,7 @@
 
       <!-- FORM CARD CONTAINER -->
       <div class="wizard-card">
-        <form id="wizard-propose-form" onsubmit="event.preventDefault(); nextWizardStep();">
+        <div id="wizard-form-body">
           
           <!-- STEP 1: CƠ BẢN -->
           <div class="wizard-pane" id="wizard-pane-1">
@@ -179,15 +181,15 @@
             
             <div class="form-group">
               <label class="form-label">Tên địa điểm <span style="color:var(--rose);">*</span></label>
-              <input type="text" id="wiz-name" class="form-control" placeholder="Ví dụ: Cà Phê Giảng, Đỉnh Fansipan..." required />
+              <input type="text" id="wiz-name" class="form-control" placeholder="Ví dụ: Cà Phê Giảng, Đỉnh Fansipan, Bún Bò Huế..." />
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
               <div class="form-group">
                 <label class="form-label">Loại hình <span style="color:var(--rose);">*</span></label>
-                <select id="wiz-type" class="form-control" required onchange="updateWizardCategories(this.value)">
+                <select id="wiz-type" class="form-control" onchange="updateWizardCategories(this.value)">
                   <option value="">-- Chọn Loại hình --</option>
-                  <option value="1">Ăn uống</option>
+                  <option value="1" selected>Ăn uống</option>
                   <option value="2">Du lịch</option>
                   <option value="3">Lưu trú</option>
                   <option value="4">Vui chơi</option>
@@ -196,7 +198,7 @@
 
               <div class="form-group">
                 <label class="form-label">Danh mục cụ thể <span style="color:var(--rose);">*</span></label>
-                <select id="wiz-category" class="form-control" required>
+                <select id="wiz-category" class="form-control">
                   <option value="">-- Chọn Danh mục --</option>
                 </select>
               </div>
@@ -209,23 +211,23 @@
             
             <div class="form-group">
               <label class="form-label">Tỉnh / Thành phố <span style="color:var(--rose);">*</span></label>
-              <select id="wiz-province" class="form-control" required>
+              <select id="wiz-province" class="form-control">
                 <option value="">-- Chọn Tỉnh / Thành --</option>
               </select>
             </div>
 
             <div class="form-group">
               <label class="form-label">Địa chỉ chi tiết <span style="color:var(--rose);">*</span></label>
-              <input type="text" id="wiz-address" class="form-control" placeholder="Số nhà, tên đường, phường/xã, quận/huyện..." required />
+              <input type="text" id="wiz-address" class="form-control" placeholder="Số nhà, tên đường, phường/xã, quận/huyện..." />
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
               <div class="form-group">
-                <label class="form-label">Vĩ độ (Latitude)</label>
+                <label class="form-label">Vĩ độ (Latitude - Tùy chọn)</label>
                 <input type="number" step="0.000001" id="wiz-lat" class="form-control" placeholder="21.028511" />
               </div>
               <div class="form-group">
-                <label class="form-label">Kinh độ (Longitude)</label>
+                <label class="form-label">Kinh độ (Longitude - Tùy chọn)</label>
                 <input type="number" step="0.000001" id="wiz-lng" class="form-control" placeholder="105.854444" />
               </div>
             </div>
@@ -272,8 +274,9 @@
             <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; color: var(--text-main);">Bước 4: Hình ảnh & Video</h3>
             
             <div class="form-group">
-              <label class="form-label">Đường dẫn hình ảnh minh họa (URL) <span style="color:var(--rose);">*</span></label>
-              <input type="url" id="wiz-img-url" class="form-control" placeholder="https://images.unsplash.com/..." required />
+              <label class="form-label">Đường dẫn hình ảnh minh họa (URL)</label>
+              <input type="url" id="wiz-img-url" class="form-control" placeholder="https://images.unsplash.com/..." value="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" />
+              <small style="color:var(--text-muted); display:block; margin-top:4px;">Bạn có thể dán link ảnh từ Unsplash, Google Photos hoặc để mặc định.</small>
             </div>
 
             <div class="form-group">
@@ -301,13 +304,13 @@
               <i class="fa-solid fa-arrow-left"></i> Quay lại
             </button>
             <div style="margin-left: auto;">
-              <button type="submit" class="btn btn-primary" id="wiz-next-btn">
+              <button type="button" class="btn btn-primary" id="wiz-next-btn" onclick="handleNextStepClick()">
                 Tiếp tục <i class="fa-solid fa-arrow-right"></i>
               </button>
             </div>
           </div>
 
-        </form>
+        </div>
       </div>
 
     </div>
@@ -328,6 +331,7 @@
       document.getElementById('site-footer-mount').innerHTML = UI.renderFooter();
 
       initWizardOptions();
+      updateWizardCategories(1); // Default to Ăn uống
     });
 
     function initWizardOptions() {
@@ -340,12 +344,47 @@
     function updateWizardCategories(typeId) {
       const catSelect = document.getElementById('wiz-category');
       const categories = TravelData.getCategories();
-      const filtered = typeId ? categories.filter(c => c.placeTypeId === parseInt(typeId)) : [];
+      const filtered = typeId ? categories.filter(c => c.placeTypeId === parseInt(typeId)) : categories;
       catSelect.innerHTML = '<option value="">-- Chọn Danh mục --</option>' +
-        filtered.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+        filtered.map(c => `<option value="${c.id}" data-name="${c.name}">${c.name}</option>`).join('');
+      if (filtered.length > 0) {
+        catSelect.selectedIndex = 1;
+      }
     }
 
-    function nextWizardStep() {
+    function handleNextStepClick() {
+      // Validate current step
+      if (currentStep === 1) {
+        const name = document.getElementById('wiz-name').value.trim();
+        const type = document.getElementById('wiz-type').value;
+        const cat = document.getElementById('wiz-category').value;
+        if (!name) {
+          UI.showToast('Vui lòng nhập tên địa điểm!', 'warning');
+          document.getElementById('wiz-name').focus();
+          return;
+        }
+        if (!type) {
+          UI.showToast('Vui lòng chọn loại hình địa điểm!', 'warning');
+          return;
+        }
+        if (!cat) {
+          UI.showToast('Vui lòng chọn danh mục cụ thể!', 'warning');
+          return;
+        }
+      } else if (currentStep === 2) {
+        const prov = document.getElementById('wiz-province').value;
+        const addr = document.getElementById('wiz-address').value.trim();
+        if (!prov) {
+          UI.showToast('Vui lòng chọn Tỉnh / Thành phố!', 'warning');
+          return;
+        }
+        if (!addr) {
+          UI.showToast('Vui lòng nhập địa chỉ chi tiết!', 'warning');
+          document.getElementById('wiz-address').focus();
+          return;
+        }
+      }
+
       if (currentStep < 5) {
         currentStep++;
         updateWizardUI();
@@ -390,40 +429,76 @@
 
     function renderReviewSummary() {
       const name = document.getElementById('wiz-name').value;
-      const cat = document.getElementById('wiz-category').value;
+      const catSelect = document.getElementById('wiz-category');
+      const catName = catSelect.options[catSelect.selectedIndex]?.getAttribute('data-name') || catSelect.options[catSelect.selectedIndex]?.text || '';
       const provSelect = document.getElementById('wiz-province');
       const provName = provSelect.options[provSelect.selectedIndex]?.text || '';
       const address = document.getElementById('wiz-address').value;
-      const hours = document.getElementById('wiz-hours').value || 'Chưa có';
+      const hours = document.getElementById('wiz-hours').value || '07:00 – 22:00';
 
       document.getElementById('wizard-review-summary').innerHTML = `
         <div><strong>Tên địa điểm:</strong> ${name}</div>
-        <div><strong>Danh mục:</strong> ${cat}</div>
+        <div><strong>Danh mục:</strong> ${catName}</div>
         <div><strong>Địa chỉ:</strong> ${address}, ${provName}</div>
         <div><strong>Giờ mở cửa:</strong> ${hours}</div>
       `;
     }
 
-    function submitProposalFinal() {
-      const newPlace = {
-        name: document.getElementById('wiz-name').value,
-        category: document.getElementById('wiz-category').value,
-        placeTypeId: parseInt(document.getElementById('wiz-type').value),
-        provinceId: parseInt(document.getElementById('wiz-province').value),
-        provinceName: document.getElementById('wiz-province').options[document.getElementById('wiz-province').selectedIndex].text,
-        address: document.getElementById('wiz-address').value,
-        phone: document.getElementById('wiz-phone').value,
-        website: document.getElementById('wiz-website').value,
-        minPrice: parseInt(document.getElementById('wiz-min-price').value) || 0,
-        maxPrice: parseInt(document.getElementById('wiz-max-price').value) || 0,
-        openingHours: document.getElementById('wiz-hours').value,
-        description: document.getElementById('wiz-desc').value,
-        images: [document.getElementById('wiz-img-url').value || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800'],
+    async function submitProposalFinal() {
+      const btn = document.getElementById('wiz-next-btn');
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Đang gửi...';
+      btn.disabled = true;
+
+      const user = api.getCurrentUser() || { id: 4, fullName: 'Người dùng' };
+      const catSelect = document.getElementById('wiz-category');
+      const catId = parseInt(catSelect.value) || 1;
+      const catName = catSelect.options[catSelect.selectedIndex]?.getAttribute('data-name') || catSelect.options[catSelect.selectedIndex]?.text || 'Ẩm thực';
+      const provSelect = document.getElementById('wiz-province');
+      const provId = parseInt(provSelect.value) || 1;
+      const provName = provSelect.options[provSelect.selectedIndex]?.text || 'Hà Nội';
+
+      const imgUrl = document.getElementById('wiz-img-url').value.trim() || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800';
+
+      const dto = {
+        name: document.getElementById('wiz-name').value.trim(),
+        categoryId: catId,
+        category: catName,
+        placeTypeId: parseInt(document.getElementById('wiz-type').value) || 1,
+        provinceId: provId,
+        provinceName: provName,
+        address: document.getElementById('wiz-address').value.trim(),
+        phone: document.getElementById('wiz-phone').value.trim() || '0901 234 567',
+        website: document.getElementById('wiz-website').value.trim() || '',
+        minPrice: parseInt(document.getElementById('wiz-min-price').value) || 35000,
+        maxPrice: parseInt(document.getElementById('wiz-max-price').value) || 120000,
+        openingHours: document.getElementById('wiz-hours').value.trim() || '07:00 – 22:00',
+        description: document.getElementById('wiz-desc').value.trim() || 'Địa điểm mới do cộng đồng đề xuất với không gian ấn tượng và dịch vụ chu đáo.',
+        imageUrls: [imgUrl],
+        images: [imgUrl],
         latitude: parseFloat(document.getElementById('wiz-lat').value) || 21.0285,
-        longitude: parseFloat(document.getElementById('wiz-lng').value) || 105.8544
+        longitude: parseFloat(document.getElementById('wiz-lng').value) || 105.8544,
+        status: 'pending'
       };
 
-      TravelData.savePlace(newPlace);
+      try {
+        // Send to backend C# API
+        await api.request(`/Places/propose?userId=${user.id}`, {
+          method: 'POST',
+          body: JSON.stringify(dto)
+        });
+      } catch (err) {
+        console.warn('Backend propose place fallback:', err.message);
+      }
+
+      // Save locally to TravelData so it appears in Admin pending queue
+      TravelData.savePlace({
+        id: Date.now(),
+        ...dto,
+        status: 'pending',
+        proposerName: user.fullName || 'Người dùng',
+        proposedAt: new Date().toISOString()
+      });
+
       UI.showToast('Đề xuất địa điểm đã được gửi thành công! Đang chờ kiểm duyệt.', 'success');
       setTimeout(() => {
         window.location.href = '../index.html';
