@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cẩm Nang Ẩm Thực & Đặc Sản — TripAdvisor Lang Thang</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+
+  <style>
+    .food-hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      border-radius: var(--radius-full);
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-body);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-xs);
+    }
+    .food-hero-pill:hover, .food-hero-pill.active {
+      border-color: var(--primary-dark);
+      background: var(--primary-dark);
+      color: #ffffff;
+    }
+    .food-hero-pill img {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .food-stat-box {
+      padding: 14px 20px;
+      background: var(--bg-subtle);
+      border-radius: var(--radius-lg);
+      text-align: center;
+    }
+    .food-place-row-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 18px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      background: #ffffff;
+      transition: all var(--transition-fast);
+      margin-bottom: 12px;
+    }
+    .food-place-row-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+    .food-place-row-thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: var(--radius-md);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header" id="site-header-mount"></header>
+
+  <main class="main-content">
+    <div class="container">
+      
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" style="display:flex; align-items:center; gap:8px; font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
+        <a href="../index.html">Trang chủ</a> <i class="fa-solid fa-chevron-right" style="font-size:0.65rem;"></i>
+        <span style="color: var(--text-main); font-weight: 700;">Khám phá ẩm thực đặc sản</span>
+      </nav>
+
+      <!-- Page Title -->
+      <div style="margin-bottom: 20px;">
+        <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">Ẩm Thực Đặc Sản 3 Miền</h1>
+      </div>
+
+      <!-- Search Input -->
+      <div style="display: flex; align-items: center; gap: 12px; padding: 6px 18px; border: 1px solid var(--border-color); border-radius: var(--radius-full); background: #ffffff; box-shadow: var(--shadow-sm); margin-bottom: 20px;">
+        <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted); font-size: 1.05rem;"></i>
+        <input type="text" id="food-search-input" style="width: 100%; border: none; background: transparent; outline: none; font-size: 0.95rem; padding: 8px 0;" placeholder="Tìm món ăn (phở bò, bánh mì, cà phê trứng, bún chả, cơm tấm...)" oninput="onFoodSearchInput(this.value)" />
+      </div>
+
+      <!-- Quick Dishes Pills -->
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px;" id="food-quick-pills">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- FEATURED DISH SPOTLIGHT SECTION -->
+      <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; align-items: center; margin-bottom: 44px; background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 32px; box-shadow: var(--shadow-sm);" id="dish-spotlight-section">
+        <div>
+          <img id="spotlight-img" src="" alt="Món ăn" style="width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-lg); object-fit: cover; box-shadow: var(--shadow-md);" />
+        </div>
+        <div>
+          <span class="badge badge-category" id="spotlight-province" style="margin-bottom: 10px;">
+            <i class="fa-solid fa-location-dot" style="color:var(--primary);"></i> Nổi tiếng tại Hà Nội & TP. Hồ Chí Minh
+          </span>
+          <h2 id="spotlight-name" style="font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; color: var(--text-main);">Phở Bò</h2>
+          <p id="spotlight-desc" style="color: var(--text-body); font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;"></p>
+
+          <div style="display: flex; gap: 14px; margin-bottom: 24px;">
+            <div class="food-stat-box">
+              <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary-dark);" id="spotlight-place-count">320</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Địa chỉ chuẩn vị</div>
+            </div>
+            <div class="food-stat-box">
+              <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">4.9 ●</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Điểm đánh giá TB</div>
+            </div>
+          </div>
+
+          <div>
+            <h4 style="font-size: 0.85rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Tỉnh thành nổi bật:</h4>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="spotlight-tags"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- WHERE TO EAT THIS DISH -->
+      <section style="margin-bottom: 40px;">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <h2><i class="fa-solid fa-utensils" style="color: var(--primary);"></i> Quán ăn nổi tiếng phục vụ món này</h2>
+            <p id="places-sub-heading">Được cộng đồng du khách bình chọn ngon nhất</p>
+          </div>
+        </div>
+        <div class="place-grid" id="dish-places-grid">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- 3. FOOTER -->
+  <footer class="site-footer" id="site-footer-mount"></footer>
+
+  <!-- Scripts -->
+  <script src="../js/data.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script>
+    let allFoods = [];
+    let selectedFood = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      document.getElementById('site-header-mount').innerHTML = UI.renderHeader('foods');
+      document.getElementById('site-footer-mount').innerHTML = UI.renderFooter();
+
+      try {
+        if (typeof api !== 'undefined') allFoods = await api.request('/foods');
+      } catch(e) {}
+
+      if (!allFoods || allFoods.length === 0) {
+        if (typeof TravelData !== 'undefined') allFoods = TravelData.getFoods();
+      }
+
+      renderFoodPills();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const foodId = parseInt(urlParams.get('id'));
+      if (foodId) {
+        const f = allFoods.find(x => x.id === foodId);
+        if (f) selectFood(f);
+        else if (allFoods.length > 0) selectFood(allFoods[0]);
+      } else if (allFoods.length > 0) {
+        selectFood(allFoods[0]);
+      }
+    });
+
+    function renderFoodPills() {
+      const container = document.getElementById('food-quick-pills');
+      if (!container) return;
+
+      container.innerHTML = allFoods.map(f => `
+        <button type="button" class="food-hero-pill ${selectedFood && selectedFood.id === f.id ? 'active' : ''}" onclick="selectFoodById(${f.id}, this)">
+          <img src="${f.imageUrl || f.image || 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=100'}" alt="${f.name}" />
+          <span>${f.name}</span>
+        </button>
+      `).join('');
+    }
+
+    function selectFoodById(id, btn) {
+      const f = allFoods.find(x => x.id === id);
+      if (f) {
+        document.querySelectorAll('.food-hero-pill').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        selectFood(f);
+      }
+    }
+
+    async function selectFood(food) {
+      selectedFood = food;
+      const imgEl = document.getElementById('spotlight-img');
+      if (imgEl) imgEl.src = food.imageUrl || food.image || 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=800';
+
+      document.getElementById('spotlight-name').innerText = food.name;
+      document.getElementById('spotlight-desc').innerText = food.description || 'Món ăn truyền thống đặc sắc mang đậm dấu ấn ẩm thực văn hóa Việt Nam.';
+
+      const provName = food.foodProvinces && food.foodProvinces.length > 0
+        ? food.foodProvinces.map(p => p.province?.name || p.provinceName).join(', ')
+        : (food.provinceName || 'Việt Nam');
+
+      document.getElementById('spotlight-province').innerHTML = `<i class="fa-solid fa-location-dot" style="color:var(--primary);"></i> Đặc sản ${provName}`;
+
+      const tagsContainer = document.getElementById('spotlight-tags');
+      if (tagsContainer) {
+        const provs = food.foodProvinces && food.foodProvinces.length > 0
+          ? food.foodProvinces.map(p => p.province?.name || p.provinceName)
+          : [food.provinceName || 'Hà Nội', 'TP. Hồ Chí Minh'];
+        tagsContainer.innerHTML = provs.map(p => `<span class="badge badge-category">${p}</span>`).join('');
+      }
+
+      // Load places serving this food
+      await renderPlacesForFood(food);
+    }
+
+    async function renderPlacesForFood(food) {
+      const container = document.getElementById('dish-places-grid');
+      if (!container) return;
+
+      let allPlaces = [];
+      try {
+        if (typeof api !== 'undefined') allPlaces = await api.getPlaces();
+      } catch(e) {}
+
+      if (!allPlaces || allPlaces.length === 0) {
+        if (typeof TravelData !== 'undefined') allPlaces = TravelData.getPlaces();
+      }
+
+      const foodPlaces = allPlaces.filter(p => {
+        const matchCat = (p.category?.name || p.categoryName || p.category || '').toLowerCase().includes('ăn') || (p.placeTypeId === 1);
+        const matchName = (p.name || '').toLowerCase().includes(food.name.toLowerCase().split(' ')[0]);
+        return matchCat || matchName;
+      }).slice(0, 4);
+
+      if (foodPlaces.length === 0) {
+        container.innerHTML = `<p style="grid-column:1/-1; color:var(--text-muted);">Đang cập nhật thêm địa chỉ phục vụ món ăn này...</p>`;
+      } else {
+        container.innerHTML = foodPlaces.map(p => UI.createPlaceCard(p)).join('');
+      }
+    }
+
+    function onFoodSearchInput(val) {
+      const q = val.trim().toLowerCase();
+      if (!q) {
+        renderFoodPills();
+        return;
+      }
+      const matched = allFoods.filter(f => f.name.toLowerCase().includes(q) || (f.description || '').toLowerCase().includes(q));
+      if (matched.length > 0) {
+        selectFood(matched[0]);
+      }
+    }
+  </script>
+</body>
+</html>

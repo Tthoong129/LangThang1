@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cài Đặt Tài Khoản - TravelReview</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header" id="site-header-mount"></header>
+
+  <main class="main-content">
+    <div class="container" style="max-width: 760px;">
+      
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb">
+        <a href="../index.html"><i class="fa-solid fa-house"></i> Trang chủ</a>
+        <i class="fa-solid fa-chevron-right breadcrumb-separator"></i>
+        <span>Cài đặt & Thiết lập tài khoản</span>
+      </nav>
+
+      <div style="margin-bottom: 28px;">
+        <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-gear" style="color: var(--primary);"></i> Cài Đặt Hệ Thống</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Quản lý thông tin hồ sơ, bảo mật đăng nhập và quyền riêng tư.</p>
+      </div>
+
+      <!-- SECTION 1: THÔNG TIN TÀI KHOẢN -->
+      <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 28px; margin-bottom: 28px; box-shadow: var(--shadow-sm);">
+        <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 20px;">Thông tin tài khoản</h2>
+
+        <form id="account-info-form" onsubmit="event.preventDefault(); saveAccountInfo();">
+          <div class="form-group">
+            <label class="form-label">Họ và tên</label>
+            <input type="text" id="set-fullname" class="form-control" value="Nguyễn Văn An" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Địa chỉ Email</label>
+            <input type="email" id="set-email" class="form-control" value="an.nguyen@gmail.com" disabled style="background-color: var(--bg-subtle); cursor: not-allowed;" />
+            <div class="form-hint">Email dùng để định danh tài khoản và nhận thông báo quan trọng.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Số điện thoại</label>
+            <input type="tel" id="set-phone" class="form-control" value="0912 345 678" />
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-sm">Lưu thay đổi</button>
+        </form>
+      </div>
+
+      <!-- SECTION 2: BẢO MẬT & ĐỔI MẬT KHẨU -->
+      <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 28px; margin-bottom: 28px; box-shadow: var(--shadow-sm);">
+        <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 20px;">Bảo mật & Đổi mật khẩu</h2>
+
+        <form id="password-form" onsubmit="event.preventDefault(); changeUserPassword();">
+          <div class="form-group">
+            <label class="form-label">Mật khẩu hiện tại</label>
+            <input type="password" id="set-old-pass" class="form-control" placeholder="••••••••" required />
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Mật khẩu mới</label>
+              <input type="password" id="set-new-pass" class="form-control" placeholder="••••••••" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Xác nhận mật khẩu mới</label>
+              <input type="password" id="set-confirm-pass" class="form-control" placeholder="••••••••" required />
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-secondary btn-sm">Đổi mật khẩu</button>
+        </form>
+      </div>
+
+      <!-- SECTION 3: QUYỀN RIÊNG TƯ -->
+      <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 28px; box-shadow: var(--shadow-sm);">
+        <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 20px;">Cấu hình quyền riêng tư</h2>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border-subtle);">
+          <div>
+            <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Hiển thị Nhật ký đã ghé thăm</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted);">Cho phép người dùng khác xem các địa điểm bạn đã từng trải nghiệm trên trang hồ sơ.</div>
+          </div>
+          <select class="form-control" style="width: auto; height: 38px;">
+            <option value="public">Công khai</option>
+            <option value="private">Chỉ mình tôi</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer" id="site-footer-mount"></footer>
+
+  <!-- Scripts -->
+  <script src="../js/data.js"></script>
+  <script src="../js/ui.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('site-header-mount').innerHTML = UI.renderHeader('settings');
+      document.getElementById('site-footer-mount').innerHTML = UI.renderFooter();
+    });
+
+    function saveAccountInfo() {
+      const name = document.getElementById('set-fullname').value;
+      const phone = document.getElementById('set-phone').value;
+      TravelData.updateUser({ fullName: name, phone: phone });
+      UI.showToast('Thông tin tài khoản đã được lưu cập nhật!', 'success');
+    }
+
+    function changeUserPassword() {
+      const newP = document.getElementById('set-new-pass').value;
+      const confP = document.getElementById('set-confirm-pass').value;
+      if (newP !== confP) {
+        UI.showToast('Mật khẩu xác nhận không khớp!', 'error');
+        return;
+      }
+      UI.showToast('Đổi mật khẩu thành công!', 'success');
+      document.getElementById('password-form').reset();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lang Thang — Nền tảng khám phá và đánh giá địa điểm du lịch, ẩm thực, lưu trú hàng đầu Việt Nam.">
+  <title>Lang Thang — Cẩm Nang & Đánh Giá Du Lịch</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+
+  <style>
+    /* CATEGORY TILES */
+    .category-tiles-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+    .category-tile-card {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      min-height: 120px;
+      text-decoration: none;
+      transition: transform 0.3s cubic-bezier(.4,0,.2,1), box-shadow 0.3s ease;
+      box-shadow: 0 2px 10px rgba(36,28,21,0.10);
+    }
+    .category-tile-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(36,28,21,0.18);
+    }
+    .category-tile-card:hover .category-tile-bg {
+      transform: scale(1.06);
+    }
+    .category-tile-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .category-tile-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(20,8,2,0.85) 0%, rgba(20,8,2,0.15) 70%, transparent 100%);
+    }
+    .category-tile-body {
+      position: relative;
+      z-index: 2;
+      padding: 14px 16px;
+    }
+    .category-tile-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .category-tile-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+    }
+    @media (max-width: 900px) {
+      .category-tiles-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 540px) {
+      .category-tiles-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. HEADER -->
+  <header class="site-header" id="site-header-mount"></header>
+
+  <!-- 2. MAIN CONTENT -->
+  <main class="main-content">
+    <div class="container">
+
+      <!-- HERO SECTION -->
+      <div class="trip-hero-section">
+        <img src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1600" alt="Du lịch Việt Nam" class="trip-hero-bg" />
+        <div class="trip-hero-content">
+          <h1 class="trip-hero-title">Khám phá Việt Nam</h1>
+
+          <!-- Category Quick Tabs -->
+          <div class="hero-category-tabs">
+            <a href="pages/search.html?type=1" class="hero-cat-tab">Ẩm thực</a>
+            <a href="pages/search.html?type=2" class="hero-cat-tab">Điểm tham quan</a>
+            <a href="pages/search.html?type=3" class="hero-cat-tab">Khách sạn & Resort</a>
+            <a href="pages/foods.html" class="hero-cat-tab">Đặc sản</a>
+            <a href="pages/map.html" class="hero-cat-tab">Bản đồ</a>
+          </div>
+
+          <!-- Smart Search Box -->
+          <form class="trip-search-box" action="pages/search.html" method="GET">
+            <div class="trip-search-input-wrap">
+              <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted); font-size: 1.05rem;"></i>
+              <input type="text" name="q" placeholder="Bạn muốn tìm địa điểm nào?..." required />
+            </div>
+            <div class="trip-search-province-wrap">
+              <select name="province" id="hero-province-select">
+                <option value="">Toàn quốc</option>
+              </select>
+            </div>
+            <button type="submit" class="trip-search-btn">
+              Tìm kiếm
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- DESTINATION QUICK PILLS BAR -->
+      <div class="destination-chips-bar" id="destination-pills">
+        <a href="pages/search.html?province=TP.+Hồ+Chí+Minh" class="dest-chip active">TP. Hồ Chí Minh</a>
+        <a href="pages/search.html?province=Hà+Nội" class="dest-chip">Hà Nội</a>
+        <a href="pages/search.html?province=Đà+Nẵng" class="dest-chip">Đà Nẵng</a>
+        <a href="pages/search.html?province=Khánh+Hòa" class="dest-chip">Nha Trang</a>
+        <a href="pages/search.html?province=Lâm+Đồng" class="dest-chip">Đà Lạt</a>
+        <a href="pages/search.html?province=Kiên+Giang" class="dest-chip">Phú Quốc</a>
+        <a href="pages/search.html?province=Quảng+Ninh" class="dest-chip">Hạ Long</a>
+        <a href="pages/search.html?province=Thừa+Thiên+Huế" class="dest-chip">Huế</a>
+        <a href="pages/search.html?province=Lào+Cai" class="dest-chip">Sa Pa</a>
+      </div>
+
+      <!-- 4 CATEGORY TILES -->
+      <div class="category-tiles-grid">
+        <a href="pages/search.html?type=1" class="category-tile-card">
+          <img class="category-tile-bg" src="https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=600&q=80" alt="Ẩm thực">
+          <div class="category-tile-overlay"></div>
+          <div class="category-tile-body">
+            <div class="category-tile-icon"><i class="fa-solid fa-utensils"></i></div>
+            <div class="category-tile-title">Ẩm thực</div>
+          </div>
+        </a>
+
+        <a href="pages/search.html?type=2" class="category-tile-card">
+          <img class="category-tile-bg" src="https://images.unsplash.com/photo-1528127269322-539801943592?w=600&q=80" alt="Điểm tham quan">
+          <div class="category-tile-overlay"></div>
+          <div class="category-tile-body">
+            <div class="category-tile-icon"><i class="fa-solid fa-camera"></i></div>
+            <div class="category-tile-title">Điểm tham quan</div>
+          </div>
+        </a>
+
+        <a href="pages/search.html?type=3" class="category-tile-card">
+          <img class="category-tile-bg" src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600&q=80" alt="Khách sạn">
+          <div class="category-tile-overlay"></div>
+          <div class="category-tile-body">
+            <div class="category-tile-icon"><i class="fa-solid fa-hotel"></i></div>
+            <div class="category-tile-title">Khách sạn & Lưu trú</div>
+          </div>
+        </a>
+
+        <a href="pages/search.html?type=4" class="category-tile-card">
+          <img class="category-tile-bg" src="https://images.unsplash.com/photo-1499856374078-f57f4086bf49?w=600&q=80" alt="Vui chơi">
+          <div class="category-tile-overlay"></div>
+          <div class="category-tile-body">
+            <div class="category-tile-icon"><i class="fa-solid fa-ticket"></i></div>
+            <div class="category-tile-title">Vui chơi & Giải trí</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- SECTION 1: NỔI BẬT NHẤT -->
+      <section class="section" style="padding-top: 10px;">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <h2><i class="fa-solid fa-award" style="color:var(--amber);"></i> Nổi bật nhất</h2>
+          </div>
+          <a href="pages/ranking.html" class="view-all-link">Bảng xếp hạng <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div class="place-grid" id="featured-places-grid"></div>
+      </section>
+
+      <!-- SECTION 2: ĐIỂM ĐẾN PHỔ BIẾN -->
+      <section class="section">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <h2><i class="fa-solid fa-map-location-dot" style="color:var(--primary);"></i> Điểm đến phổ biến</h2>
+          </div>
+          <a href="pages/search.html" class="view-all-link">Tất cả tỉnh thành <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div class="destination-grid" id="destinations-grid"></div>
+      </section>
+
+      <!-- SECTION 3: ẨM THỰC ĐẶC SẢN -->
+      <section class="section">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <h2><i class="fa-solid fa-bowl-food" style="color:var(--primary);"></i> Ẩm thực đặc sản</h2>
+          </div>
+          <a href="pages/foods.html" class="view-all-link">Xem tất cả <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div class="place-grid" id="specialty-foods-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));"></div>
+      </section>
+
+      <!-- SECTION 4: ĐÁNH GIÁ CAO -->
+      <section class="section">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <h2><i class="fa-solid fa-star" style="color:var(--amber);"></i> Đánh giá cao</h2>
+          </div>
+          <a href="pages/search.html?minRating=4.5" class="view-all-link">Xem tất cả <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div class="place-grid" id="top-rated-places-grid"></div>
+      </section>
+
+      <!-- SECTION 5: ĐÃ XEM GẦN ĐÂY -->
+      <section class="section" id="recently-viewed-section" style="display: none;">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <h2><i class="fa-solid fa-clock-rotate-left" style="color:var(--text-muted);"></i> Đã xem gần đây</h2>
+          </div>
+          <a href="pages/history.html" class="view-all-link">Xem lịch sử <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="mobile-bottom-nav">
+    <a href="index.html" class="mobile-bottom-nav-item active"><i class="fa-solid fa-house"></i> Trang chủ</a>
+    <a href="pages/search.html" class="mobile-bottom-nav-item"><i class="fa-solid fa-compass"></i> Khám phá</a>
+    <a href="pages/foods.html" class="mobile-bottom-nav-item"><i class="fa-solid fa-utensils"></i> Ẩm thực</a>
+    <a href="pages/ranking.html" class="mobile-bottom-nav-item"><i class="fa-solid fa-trophy"></i> Xếp hạng</a>
+    <a href="pages/profile.html" class="mobile-bottom-nav-item"><i class="fa-solid fa-user"></i> Cá nhân</a>
+  </nav>
+
+  <!-- 3. FOOTER -->
+  <footer class="site-footer" id="site-footer-mount"></footer>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

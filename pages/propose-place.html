@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đề Xuất Địa Điểm Mới — Lang Thang</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+
+  <style>
+    body {
+      background: #fbf9f6;
+    }
+    .wizard-container {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 20px 0 60px;
+    }
+    .wizard-stepper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      margin: 24px 0 36px 0;
+      padding: 0 10px;
+    }
+    .wizard-stepper::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 36px;
+      right: 36px;
+      height: 3px;
+      background: #e2e8f0;
+      z-index: 1;
+    }
+    .step-node {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .step-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      color: #64748b;
+      font-weight: 800;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .step-label {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #64748b;
+      transition: color 0.25s ease;
+      white-space: nowrap;
+    }
+    .step-node.active .step-circle {
+      background: var(--primary, #c85a2e);
+      border-color: var(--primary, #c85a2e);
+      color: #ffffff;
+      box-shadow: 0 0 0 5px rgba(200, 90, 46, 0.18);
+      transform: scale(1.08);
+    }
+    .step-node.active .step-label {
+      color: var(--primary, #c85a2e);
+      font-weight: 800;
+    }
+    .step-node.completed .step-circle {
+      background: #16a34a;
+      border-color: #16a34a;
+      color: #ffffff;
+    }
+    .step-node.completed .step-label {
+      color: #16a34a;
+    }
+    .wizard-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color, #e5e7eb);
+      border-radius: 20px;
+      padding: 36px 40px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-main, #1f2937);
+      margin-bottom: 8px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      color: #1e293b;
+      transition: all 0.2s ease;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .form-control:focus {
+      border-color: var(--primary, #c85a2e);
+      box-shadow: 0 0 0 3px rgba(200, 90, 46, 0.12);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header" id="site-header-mount"></header>
+
+  <main class="main-content">
+    <div class="container wizard-container">
+      
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" style="margin-bottom: 12px;">
+        <a href="../index.html"><i class="fa-solid fa-house"></i> Trang chủ</a>
+        <i class="fa-solid fa-chevron-right breadcrumb-separator"></i>
+        <span>Đề xuất địa điểm mới</span>
+      </nav>
+
+      <!-- Section Title -->
+      <div style="margin-bottom: 24px; text-align: center;">
+        <h1 style="font-size: 2rem; font-weight: 800; color: var(--text-main); margin: 0 0 4px;">Đề Xuất Địa Điểm</h1>
+      </div>
+
+      <!-- 5-STEP WIZARD STEPPER -->
+      <div class="wizard-stepper">
+        <div class="step-node active" id="step-node-1">
+          <div class="step-circle" id="step-circle-1">1</div>
+          <div class="step-label">Cơ bản</div>
+        </div>
+        <div class="step-node" id="step-node-2">
+          <div class="step-circle" id="step-circle-2">2</div>
+          <div class="step-label">Vị trí</div>
+        </div>
+        <div class="step-node" id="step-node-3">
+          <div class="step-circle" id="step-circle-3">3</div>
+          <div class="step-label">Bổ sung</div>
+        </div>
+        <div class="step-node" id="step-node-4">
+          <div class="step-circle" id="step-circle-4">4</div>
+          <div class="step-label">Hình ảnh</div>
+        </div>
+        <div class="step-node" id="step-node-5">
+          <div class="step-circle" id="step-circle-5">5</div>
+          <div class="step-label">Xác nhận</div>
+        </div>
+      </div>
+
+      <!-- FORM CARD CONTAINER -->
+      <div class="wizard-card">
+        <form id="wizard-propose-form" onsubmit="event.preventDefault(); nextWizardStep();">
+          
+          <!-- STEP 1: CƠ BẢN -->
+          <div class="wizard-pane" id="wizard-pane-1">
+            <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; color: var(--text-main);">Bước 1: Thông tin cơ bản</h3>
+            
+            <div class="form-group">
+              <label class="form-label">Tên địa điểm <span style="color:var(--rose);">*</span></label>
+              <input type="text" id="wiz-name" class="form-control" placeholder="Ví dụ: Cà Phê Giảng, Đỉnh Fansipan..." required />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Loại hình <span style="color:var(--rose);">*</span></label>
+                <select id="wiz-type" class="form-control" required onchange="updateWizardCategories(this.value)">
+                  <option value="">-- Chọn Loại hình --</option>
+                  <option value="1">Ăn uống</option>
+                  <option value="2">Du lịch</option>
+                  <option value="3">Lưu trú</option>
+                  <option value="4">Vui chơi</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Danh mục cụ thể <span style="color:var(--rose);">*</span></label>
+                <select id="wiz-category" class="form-control" required>
+                  <option value="">-- Chọn Danh mục --</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2: ĐỊA CHỈ & TỌA ĐỘ -->
+          <div class="wizard-pane" id="wizard-pane-2" style="display: none;">
+            <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; color: var(--text-main);">Bước 2: Địa chỉ & Vị trí</h3>
+            
+            <div class="form-group">
+              <label class="form-label">Tỉnh / Thành phố <span style="color:var(--rose);">*</span></label>
+              <select id="wiz-province" class="form-control" required>
+                <option value="">-- Chọn Tỉnh / Thành --</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Địa chỉ chi tiết <span style="color:var(--rose);">*</span></label>
+              <input type="text" id="wiz-address" class="form-control" placeholder="Số nhà, tên đường, phường/xã, quận/huyện..." required />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Vĩ độ (Latitude)</label>
+                <input type="number" step="0.000001" id="wiz-lat" class="form-control" placeholder="21.028511" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Kinh độ (Longitude)</label>
+                <input type="number" step="0.000001" id="wiz-lng" class="form-control" placeholder="105.854444" />
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 3: THÔNG TIN BỔ SUNG -->
+          <div class="wizard-pane" id="wizard-pane-3" style="display: none;">
+            <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; color: var(--text-main);">Bước 3: Chi tiết hoạt động & Giá</h3>
+            
+            <div class="form-group">
+              <label class="form-label">Mô tả giới thiệu</label>
+              <textarea id="wiz-desc" class="form-control" placeholder="Không gian, điểm đặc sắc, trải nghiệm nổi bật..." rows="3"></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Số điện thoại liên hệ</label>
+                <input type="tel" id="wiz-phone" class="form-control" placeholder="0912 345 678" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Website / Fanpage</label>
+                <input type="url" id="wiz-website" class="form-control" placeholder="https://..." />
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Giá tối thiểu (VNĐ)</label>
+                <input type="number" id="wiz-min-price" class="form-control" placeholder="30000" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Giá tối đa (VNĐ)</label>
+                <input type="number" id="wiz-max-price" class="form-control" placeholder="120000" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Giờ mở cửa</label>
+                <input type="text" id="wiz-hours" class="form-control" placeholder="07:00 - 22:30" />
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 4: MEDIA -->
+          <div class="wizard-pane" id="wizard-pane-4" style="display: none;">
+            <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; color: var(--text-main);">Bước 4: Hình ảnh & Video</h3>
+            
+            <div class="form-group">
+              <label class="form-label">Đường dẫn hình ảnh minh họa (URL) <span style="color:var(--rose);">*</span></label>
+              <input type="url" id="wiz-img-url" class="form-control" placeholder="https://images.unsplash.com/..." required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Video trải nghiệm (YouTube URL nếu có)</label>
+              <input type="url" id="wiz-video-url" class="form-control" placeholder="https://www.youtube.com/watch?v=..." />
+            </div>
+          </div>
+
+          <!-- STEP 5: XÁC NHẬN -->
+          <div class="wizard-pane" id="wizard-pane-5" style="display: none;">
+            <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; color: var(--text-main);">Bước 5: Xác nhận đề xuất</h3>
+            
+            <div id="wizard-review-summary" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; font-size: 0.92rem; line-height: 1.8; margin-bottom: 20px;">
+              <!-- Rendered dynamically -->
+            </div>
+
+            <div style="background: #fef3c7; color: #92400e; padding: 14px 18px; border-radius: 10px; font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+              <i class="fa-solid fa-circle-info"></i> Sau khi gửi, đề xuất sẽ chuyển sang trạng thái <strong>"Chờ duyệt"</strong>. Admin sẽ kiểm tra và phản hồi kết quả cho bạn.
+            </div>
+          </div>
+
+          <!-- NAVIGATION BUTTONS -->
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 32px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+            <button type="button" class="btn btn-secondary" id="wiz-prev-btn" onclick="prevWizardStep()" style="display: none;">
+              <i class="fa-solid fa-arrow-left"></i> Quay lại
+            </button>
+            <div style="margin-left: auto;">
+              <button type="submit" class="btn btn-primary" id="wiz-next-btn">
+                Tiếp tục <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer" id="site-footer-mount"></footer>
+
+  <!-- Scripts -->
+  <script src="../js/data.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script>
+    let currentStep = 1;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('site-header-mount').innerHTML = UI.renderHeader('propose');
+      document.getElementById('site-footer-mount').innerHTML = UI.renderFooter();
+
+      initWizardOptions();
+    });
+
+    function initWizardOptions() {
+      const provSelect = document.getElementById('wiz-province');
+      const provinces = TravelData.getProvinces();
+      provSelect.innerHTML = '<option value="">-- Chọn Tỉnh / Thành --</option>' +
+        provinces.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    }
+
+    function updateWizardCategories(typeId) {
+      const catSelect = document.getElementById('wiz-category');
+      const categories = TravelData.getCategories();
+      const filtered = typeId ? categories.filter(c => c.placeTypeId === parseInt(typeId)) : [];
+      catSelect.innerHTML = '<option value="">-- Chọn Danh mục --</option>' +
+        filtered.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+    }
+
+    function nextWizardStep() {
+      if (currentStep < 5) {
+        currentStep++;
+        updateWizardUI();
+      } else {
+        submitProposalFinal();
+      }
+    }
+
+    function prevWizardStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        updateWizardUI();
+      }
+    }
+
+    function updateWizardUI() {
+      for (let i = 1; i <= 5; i++) {
+        document.getElementById(`wizard-pane-${i}`).style.display = (i === currentStep) ? 'block' : 'none';
+        const node = document.getElementById(`step-node-${i}`);
+        const circle = document.getElementById(`step-circle-${i}`);
+        
+        node.classList.toggle('active', i === currentStep);
+        node.classList.toggle('completed', i < currentStep);
+        
+        if (i < currentStep) {
+          circle.innerHTML = '<i class="fa-solid fa-check"></i>';
+        } else {
+          circle.textContent = i;
+        }
+      }
+
+      document.getElementById('wiz-prev-btn').style.display = currentStep > 1 ? 'inline-flex' : 'none';
+      const nextBtn = document.getElementById('wiz-next-btn');
+
+      if (currentStep === 5) {
+        nextBtn.innerHTML = '<i class="fa-solid fa-check"></i> Xác nhận & Gửi đề xuất';
+        renderReviewSummary();
+      } else {
+        nextBtn.innerHTML = 'Tiếp tục <i class="fa-solid fa-arrow-right"></i>';
+      }
+    }
+
+    function renderReviewSummary() {
+      const name = document.getElementById('wiz-name').value;
+      const cat = document.getElementById('wiz-category').value;
+      const provSelect = document.getElementById('wiz-province');
+      const provName = provSelect.options[provSelect.selectedIndex]?.text || '';
+      const address = document.getElementById('wiz-address').value;
+      const hours = document.getElementById('wiz-hours').value || 'Chưa có';
+
+      document.getElementById('wizard-review-summary').innerHTML = `
+        <div><strong>Tên địa điểm:</strong> ${name}</div>
+        <div><strong>Danh mục:</strong> ${cat}</div>
+        <div><strong>Địa chỉ:</strong> ${address}, ${provName}</div>
+        <div><strong>Giờ mở cửa:</strong> ${hours}</div>
+      `;
+    }
+
+    function submitProposalFinal() {
+      const newPlace = {
+        name: document.getElementById('wiz-name').value,
+        category: document.getElementById('wiz-category').value,
+        placeTypeId: parseInt(document.getElementById('wiz-type').value),
+        provinceId: parseInt(document.getElementById('wiz-province').value),
+        provinceName: document.getElementById('wiz-province').options[document.getElementById('wiz-province').selectedIndex].text,
+        address: document.getElementById('wiz-address').value,
+        phone: document.getElementById('wiz-phone').value,
+        website: document.getElementById('wiz-website').value,
+        minPrice: parseInt(document.getElementById('wiz-min-price').value) || 0,
+        maxPrice: parseInt(document.getElementById('wiz-max-price').value) || 0,
+        openingHours: document.getElementById('wiz-hours').value,
+        description: document.getElementById('wiz-desc').value,
+        images: [document.getElementById('wiz-img-url').value || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800'],
+        latitude: parseFloat(document.getElementById('wiz-lat').value) || 21.0285,
+        longitude: parseFloat(document.getElementById('wiz-lng').value) || 105.8544
+      };
+
+      TravelData.savePlace(newPlace);
+      UI.showToast('Đề xuất địa điểm đã được gửi thành công! Đang chờ kiểm duyệt.', 'success');
+      setTimeout(() => {
+        window.location.href = '../index.html';
+      }, 1500);
+    }
+  </script>
+</body>
+</html>

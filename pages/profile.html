@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hồ Sơ Thành Viên — Lang Thang</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+
+  <style>
+    .profile-hero-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: 36px 32px 24px 32px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-sm);
+    }
+    .profile-top-row {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .profile-avatar-big {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--primary-light);
+      box-shadow: var(--shadow-md);
+    }
+    .profile-stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 18px;
+      background: var(--bg-subtle);
+      border-radius: var(--radius-lg);
+    }
+    .profile-tabs-bar {
+      display: flex;
+      gap: 16px;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 16px;
+      overflow-x: auto;
+    }
+    .profile-tab-btn {
+      padding: 8px 18px;
+      border-radius: var(--radius-full);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      background: transparent;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+    .profile-tab-btn:hover, .profile-tab-btn.active {
+      color: var(--primary);
+      background: var(--primary-light);
+      border-color: var(--primary-100);
+    }
+    .achievement-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: var(--radius-lg);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header" id="site-header-mount"></header>
+
+  <main class="main-content">
+    <div class="container" style="max-width: 1040px;">
+      
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" style="display:flex; align-items:center; gap:8px; font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
+        <a href="../index.html">Trang chủ</a> <i class="fa-solid fa-chevron-right" style="font-size:0.65rem;"></i>
+        <span>Hồ sơ cộng tác viên du lịch</span>
+      </nav>
+
+      <!-- Profile Header Card -->
+      <div class="profile-hero-card">
+        <div class="profile-top-row">
+          <img id="profileAvatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150" alt="Avatar" class="profile-avatar-big" />
+          
+          <div style="flex: 1; min-width: 240px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap;">
+              <h1 id="profileName" style="font-size: 1.85rem; font-weight: 800; color: var(--text-main);">Đang tải...</h1>
+              <span class="badge badge-travelers-choice" id="profileLevelBadge"><i class="fa-solid fa-award"></i> Level 5 Contributor</span>
+            </div>
+            <p id="profileBio" style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 8px;">Đam mê khám phá mọi ngõ ngách ẩm thực và danh thắng Việt Nam.</p>
+            <div style="display:flex; align-items:center; gap:16px; font-size:0.82rem; color:var(--text-light);">
+              <span id="profileJoined"><i class="fa-regular fa-calendar"></i> Tham gia từ 2024</span>
+              <span><i class="fa-solid fa-location-dot"></i> Việt Nam</span>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px;">
+            <div class="profile-stat-item">
+              <span style="font-size: 1.4rem; font-weight: 800; color: var(--primary);" id="profileReviewCount">0</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Đánh giá</span>
+            </div>
+            <div class="profile-stat-item">
+              <span style="font-size: 1.4rem; font-weight: 800; color: var(--accent);" id="profileHelpfulCount">48</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Lượt hữu ích</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Tabs -->
+        <div class="profile-tabs-bar">
+          <button type="button" class="profile-tab-btn active" onclick="switchProfileTab('reviews', this)">
+            <i class="fa-solid fa-comment-dots"></i> Bài đánh giá (<span id="tab-reviews-count">0</span>)
+          </button>
+          <button type="button" class="profile-tab-btn" onclick="switchProfileTab('achievements', this)">
+            <i class="fa-solid fa-trophy"></i> Thành tích & Huy hiệu
+          </button>
+          <button type="button" class="profile-tab-btn" onclick="switchProfileTab('visited', this)">
+            <i class="fa-solid fa-calendar-check"></i> Địa điểm đã ghé
+          </button>
+        </div>
+      </div>
+
+      <!-- MAIN CONTENT AREA -->
+      <div style="display: grid; grid-template-columns: 1fr; gap: 24px;" id="profile-tab-content">
+        
+        <!-- Tab 1: Reviews Feed -->
+        <div id="tab-pane-reviews">
+          <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 18px; color: var(--text-main);">
+            Tất cả đánh giá đã đóng góp
+          </h3>
+          <div id="reviewsFeed" style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- Rendered by js/profile.js -->
+          </div>
+        </div>
+
+        <!-- Tab 2: Achievements -->
+        <div id="tab-pane-achievements" style="display: none;">
+          <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 18px; color: var(--text-main);">
+            Thành tích & Huy hiệu đạt được
+          </h3>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;" id="achievementsList">
+            <div class="achievement-badge"><i class="fa-solid fa-medal" style="color:var(--amber);"></i> Top Reviewer 2026</div>
+            <div class="achievement-badge"><i class="fa-solid fa-camera" style="color:var(--primary);"></i> Nhiếp ảnh gia ẩm thực</div>
+            <div class="achievement-badge"><i class="fa-solid fa-compass" style="color:var(--accent);"></i> Chuyên gia địa phương</div>
+            <div class="achievement-badge"><i class="fa-solid fa-heart" style="color:var(--rose);"></i> Người truyền cảm hứng</div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Visited Places -->
+        <div id="tab-pane-visited" style="display: none;">
+          <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 18px; color: var(--text-main);">
+            Các địa danh đã ghé thăm
+          </h3>
+          <div class="place-grid" id="visitedPlacesGrid">
+            <!-- Rendered by js/profile.js -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer" id="site-footer-mount"></footer>
+
+  <!-- Scripts -->
+  <script src="../js/data.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/profile.js"></script>
+</body>
+</html>

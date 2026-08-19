@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bản Đồ Khám Phá — TripAdvisor Lang Thang</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+
+  <style>
+    .map-screen-wrapper {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - var(--header-height));
+      overflow: hidden;
+    }
+    #langthang-leaflet-map {
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+    }
+    .map-top-overlay {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 30;
+      width: 92%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .map-search-bar {
+      pointer-events: auto;
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-full);
+      padding: 6px 18px;
+      box-shadow: var(--shadow-xl);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .map-search-bar input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      padding: 8px 0;
+    }
+    .map-category-pills {
+      pointer-events: auto;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .map-cat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-full);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-body);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+    }
+    .map-cat-pill:hover, .map-cat-pill.active {
+      background: var(--primary-dark);
+      border-color: var(--primary-dark);
+      color: #ffffff;
+    }
+    .map-rating-pin {
+      background: #00aa6c;
+      color: #ffffff;
+      padding: 4px 8px;
+      border-radius: var(--radius-full);
+      font-weight: 800;
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 3px 8px rgba(0, 79, 50, 0.35);
+      border: 2px solid #ffffff;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .map-rating-pin:hover, .map-rating-pin.active {
+      transform: scale(1.15);
+      background: #004f32;
+    }
+    .floating-place-card {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 40;
+      width: 92%;
+      max-width: 460px;
+      background: #ffffff;
+      border-radius: var(--radius-xl);
+      padding: 16px;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid var(--border-color);
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header" id="site-header-mount"></header>
+
+  <main class="main-content" style="padding-top: var(--header-height); padding-bottom: 0;">
+    <div class="map-screen-wrapper">
+      
+      <!-- Top Overlay Search & Filter -->
+      <div class="map-top-overlay">
+        <div class="map-search-bar">
+          <i class="fa-solid fa-magnifying-glass" style="color: var(--primary); font-size: 1.1rem;"></i>
+          <input type="text" id="map-search-input" placeholder="Tìm kiếm địa điểm trên bản đồ..." oninput="onMapSearch()" />
+        </div>
+
+        <div class="map-category-pills">
+          <button type="button" class="map-cat-pill active" onclick="setMapCategory(null, this)"><i class="fa-solid fa-border-all"></i> Tất cả</button>
+          <button type="button" class="map-cat-pill" onclick="setMapCategory(1, this)"><i class="fa-solid fa-utensils"></i> Ăn uống</button>
+          <button type="button" class="map-cat-pill" onclick="setMapCategory(2, this)"><i class="fa-solid fa-camera"></i> Du lịch</button>
+          <button type="button" class="map-cat-pill" onclick="setMapCategory(3, this)"><i class="fa-solid fa-hotel"></i> Lưu trú</button>
+          <button type="button" class="map-cat-pill" onclick="setMapCategory(4, this)"><i class="fa-solid fa-gamepad"></i> Vui chơi</button>
+        </div>
+      </div>
+
+      <!-- Map Canvas -->
+      <div id="langthang-leaflet-map"></div>
+
+      <!-- Floating Bottom Place Card -->
+      <div class="floating-place-card" id="floating-place-card">
+        <button type="button" onclick="closePlaceCard()" style="position:absolute; top:12px; right:12px; background:none; border:none; font-size:1.2rem; color:var(--text-muted); cursor:pointer;">&times;</button>
+        
+        <div style="display: flex; gap: 14px; margin-bottom: 12px;">
+          <img id="card-thumb" src="" alt="Thumbnail" style="width: 80px; height: 80px; border-radius: var(--radius-md); object-fit: cover;" />
+          <div style="flex: 1; min-width: 0;">
+            <span class="badge badge-travelers-choice" style="margin-bottom: 4px; font-size: 0.7rem;"><i class="fa-solid fa-award"></i> Travelers' Choice</span>
+            <h4 id="card-title" style="font-size: 1.05rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Tên địa điểm</h4>
+            <div id="card-bubble-mount"></div>
+            <div id="card-address" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <a href="#" id="card-detail-link" class="btn btn-outline btn-sm" style="flex: 1;">Xem chi tiết</a>
+          <a href="#" target="_blank" id="card-directions-btn" class="btn btn-primary btn-sm" style="flex: 1.2;">
+            <i class="fa-solid fa-diamond-turn-right"></i> Chỉ đường
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Scripts -->
+  <script src="../js/data.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script>
+    let map = null;
+    let markersLayer = null;
+    let selectedCat = null;
+    let activePlaceId = null;
+    let allPlaces = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      document.getElementById('site-header-mount').innerHTML = UI.renderHeader('map');
+      
+      try {
+        if (typeof api !== 'undefined') allPlaces = await api.getPlaces();
+      } catch(e) {}
+
+      if (!allPlaces || allPlaces.length === 0) {
+        if (typeof TravelData !== 'undefined') allPlaces = TravelData.getPlaces();
+      }
+
+      initLangThangMap();
+    });
+
+    function initLangThangMap() {
+      // Centered at Ho Chi Minh City & Vietnam
+      map = L.map('langthang-leaflet-map', { zoomControl: false }).setView([10.7769, 106.7009], 13);
+      L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap',
+        maxZoom: 19
+      }).addTo(map);
+
+      markersLayer = L.layerGroup().addTo(map);
+      renderMapPins();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlPlaceId = urlParams.get('id');
+      if (urlPlaceId) {
+        showFloatingPlaceCard(parseInt(urlPlaceId));
+      }
+    }
+
+    function renderMapPins() {
+      if (!markersLayer) return;
+      markersLayer.clearLayers();
+      const query = document.getElementById('map-search-input')?.value.toLowerCase().trim() || '';
+      
+      let places = [...allPlaces];
+      if (query) {
+        places = places.filter(p => (p.name || '').toLowerCase().includes(query) || (p.address || '').toLowerCase().includes(query));
+      }
+      if (selectedCat) {
+        places = places.filter(p => (p.placeTypeId || p.category?.placeTypeId || 1) === selectedCat);
+      }
+
+      const bounds = [];
+
+      places.forEach(p => {
+        const lat = p.latitude || 10.7769 + (Math.random() - 0.5) * 0.05;
+        const lng = p.longitude || 106.7009 + (Math.random() - 0.5) * 0.05;
+
+        const isAct = p.id === activePlaceId;
+        const rating = Number(p.avgRating) || 4.8;
+        const iconHtml = `
+          <div class="map-rating-pin ${isAct ? 'active' : ''}">
+            <i class="fa-solid fa-circle" style="font-size:0.5rem; color:#fef08a;"></i>
+            <span>${rating.toFixed(1)} ●</span>
+          </div>
+        `;
+
+        const customIcon = L.divIcon({
+          html: iconHtml,
+          className: 'leaflet-div-icon',
+          iconSize: [60, 26],
+          iconAnchor: [30, 13]
+        });
+
+        const marker = L.marker([lat, lng], { icon: customIcon }).addTo(markersLayer);
+        marker.on('click', () => showFloatingPlaceCard(p.id));
+
+        bounds.push([lat, lng]);
+      });
+
+      if (bounds.length > 0 && !activePlaceId) {
+        map.fitBounds(bounds, { padding: [60, 60], maxZoom: 14 });
+      }
+    }
+
+    function showFloatingPlaceCard(placeId) {
+      activePlaceId = placeId;
+      const place = allPlaces.find(p => p.id === placeId) || (typeof TravelData !== 'undefined' ? TravelData.getPlaceById(placeId) : null);
+      if (!place) return;
+
+      const card = document.getElementById('floating-place-card');
+      const thumb = place.thumbnailUrl || (place.images && place.images[0]) || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200';
+      
+      document.getElementById('card-thumb').src = thumb;
+      document.getElementById('card-title').innerText = place.name;
+      document.getElementById('card-address').innerText = place.address || place.provinceName || 'Việt Nam';
+      document.getElementById('card-detail-link').href = `place-detail.html?id=${place.id}`;
+
+      const rating = Number(place.avgRating) || 4.8;
+      const count = place.reviewCount || 120;
+      document.getElementById('card-bubble-mount').innerHTML = UI.renderBubbleRating(rating, count, true);
+
+      const lat = place.latitude || 10.7769;
+      const lng = place.longitude || 106.7009;
+      document.getElementById('card-directions-btn').href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+
+      card.style.display = 'block';
+
+      map.flyTo([lat, lng], 15, { duration: 1 });
+      renderMapPins();
+    }
+
+    function closePlaceCard() {
+      document.getElementById('floating-place-card').style.display = 'none';
+      activePlaceId = null;
+      renderMapPins();
+    }
+
+    function setMapCategory(catId, btn) {
+      selectedCat = catId;
+      document.querySelectorAll('.map-cat-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderMapPins();
+    }
+
+    let searchTimer = null;
+    function onMapSearch() {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        renderMapPins();
+      }, 200);
+    }
+  </script>
+</body>
+</html>

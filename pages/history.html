@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lịch Sử Truy Cập Gần Đây — Lang Thang</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header" id="site-header-mount"></header>
+
+  <main class="main-content">
+    <div class="container">
+      
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" style="display:flex; align-items:center; gap:8px; font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
+        <a href="../index.html">Trang chủ</a> <i class="fa-solid fa-chevron-right" style="font-size:0.65rem;"></i>
+        <span>Lịch sử các địa điểm đã xem</span>
+      </nav>
+
+      <!-- Section Title & Clear History Action -->
+      <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-clock-rotate-left" style="color: var(--primary);"></i> Lịch Sử Đã Xem Gần Đây</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Danh sách các địa điểm bạn đã truy cập và tìm hiểu gần đây.</p>
+        </div>
+
+        <button class="btn btn-danger btn-sm" onclick="clearAllHistory()">
+          <i class="fa-solid fa-trash"></i> Xóa toàn bộ lịch sử
+        </button>
+      </div>
+
+      <!-- History Grid -->
+      <div class="place-grid" id="history-places-grid">
+        <!-- Rendered dynamically -->
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="mobile-bottom-nav">
+    <a href="../index.html" class="mobile-bottom-nav-item"><i class="fa-solid fa-house"></i> Trang chủ</a>
+    <a href="search.html" class="mobile-bottom-nav-item"><i class="fa-solid fa-compass"></i> Khám phá</a>
+    <a href="map.html" class="mobile-bottom-nav-item"><i class="fa-solid fa-map-location-dot"></i> Bản đồ</a>
+    <a href="favorites.html" class="mobile-bottom-nav-item"><i class="fa-solid fa-heart"></i> Yêu thích</a>
+    <a href="profile.html" class="mobile-bottom-nav-item"><i class="fa-solid fa-user"></i> Cá nhân</a>
+  </nav>
+
+  <!-- Footer -->
+  <footer class="site-footer" id="site-footer-mount"></footer>
+
+  <!-- Scripts -->
+  <script src="../js/data.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('site-header-mount').innerHTML = UI.renderHeader('history');
+      document.getElementById('site-footer-mount').innerHTML = UI.renderFooter();
+
+      renderHistory();
+    });
+
+    async function renderHistory() {
+      let history = [];
+      if (typeof TravelData !== 'undefined') {
+        history = TravelData.getHistory();
+      }
+
+      const container = document.getElementById('history-places-grid');
+      if (!container) return;
+
+      if (!history || history.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column:1/-1; text-align:center; padding:48px 20px; background:#ffffff; border-radius:var(--radius-xl); border:1px solid var(--border-color);">
+            <i class="fa-solid fa-clock-rotate-left" style="font-size:3rem; color:var(--primary); margin-bottom:14px; opacity:0.8;"></i>
+            <div style="font-weight:800; font-size:1.25rem; margin-bottom:6px;">Chưa có lịch sử xem địa điểm</div>
+            <p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:20px;">Khi bạn bấm vào xem chi tiết bất kỳ địa điểm nào, thông tin sẽ được tự động lưu tại đây.</p>
+            <a href="search.html" class="btn btn-primary">Khám phá ngay</a>
+          </div>
+        `;
+        return;
+      }
+
+      let allPlaces = [];
+      try {
+        if (typeof api !== 'undefined') allPlaces = await api.getPlaces();
+      } catch(e) {}
+
+      if (!allPlaces || allPlaces.length === 0) {
+        if (typeof TravelData !== 'undefined') allPlaces = TravelData.getPlaces();
+      }
+
+      const places = history.map(h => allPlaces.find(p => p.id === h.placeId) || (typeof TravelData !== 'undefined' ? TravelData.getPlaceById(h.placeId) : null)).filter(p => p !== undefined && p !== null);
+      container.innerHTML = places.map(p => UI.createPlaceCard(p)).join('');
+    }
+
+    function clearAllHistory() {
+      if (!confirm('Bạn có chắc muốn xóa toàn bộ lịch sử truy cập?')) return;
+      if (typeof TravelData !== 'undefined') TravelData.clearHistory();
+      UI.showToast('Đã xóa toàn bộ lịch sử truy cập!', 'info');
+      renderHistory();
+    }
+  </script>
+</body>
+</html>

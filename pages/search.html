@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khám Phá & Tìm Kiếm Địa Điểm — TripAdvisor Lang Thang</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+
+  <style>
+    .filter-chip-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-body);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .filter-chip-btn:hover, .filter-chip-btn.active {
+      border-color: var(--primary-dark);
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-weight: 700;
+    }
+    .filter-section-block {
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .filter-section-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .view-toggle-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+    }
+    .view-toggle-btn.active {
+      background: var(--primary-dark);
+      color: #ffffff;
+      border-color: var(--primary-dark);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header" id="site-header-mount"></header>
+
+  <main class="main-content">
+    <div class="container">
+      
+      <!-- Top Search & Sort Header Bar -->
+      <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center;">
+        <div style="flex: 1; min-width: 280px; display: flex; align-items: center; gap: 12px; padding: 6px 18px; border: 1px solid var(--border-color); border-radius: var(--radius-full); background: #ffffff; box-shadow: var(--shadow-sm);">
+          <i class="fa-solid fa-magnifying-glass" style="color: var(--primary); font-size: 1.1rem;"></i>
+          <input type="text" id="search-keyword-input" placeholder="Tìm kiếm địa điểm, danh thắng, món ăn hoặc tên đường..." style="width: 100%; border: none; background: transparent; outline: none; font-size: 0.95rem; padding: 8px 0;" oninput="debounceSearch()" />
+          <button type="button" onclick="resetKeyword()" id="btn-clear-search" style="background:none; border:none; color:var(--text-muted); cursor:pointer; display:none;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <!-- Sort Dropdown -->
+          <div style="display: flex; align-items: center; gap: 8px; background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-full); padding: 0 14px; height: 46px;">
+            <i class="fa-solid fa-arrow-down-wide-short" style="color: var(--text-muted); font-size: 0.85rem;"></i>
+            <select id="sort-select" style="border: none; outline: none; background: transparent; font-size: 0.88rem; font-weight: 700; color: var(--text-main); cursor: pointer;" onchange="applySearchFilters()">
+              <option value="travelers_choice">🏆 Travelers' Choice</option>
+              <option value="rating_desc">Đánh giá cao nhất</option>
+              <option value="reviews_desc">Nhiều đánh giá nhất</option>
+              <option value="price_asc">Giá từ thấp đến cao</option>
+              <option value="name_asc">Tên (A – Z)</option>
+            </select>
+          </div>
+
+          <!-- View Mode Toggle (Grid vs List) -->
+          <div style="display: flex; gap: 4px;">
+            <button type="button" class="view-toggle-btn active" id="btn-view-grid" onclick="setViewMode('grid')" title="Dạng lưới"><i class="fa-solid fa-grip"></i></button>
+            <button type="button" class="view-toggle-btn" id="btn-view-list" onclick="setViewMode('list')" title="Dạng danh sách"><i class="fa-solid fa-list"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Layout: Left Filter Sidebar + Right Search Results -->
+      <div class="search-layout" style="display: grid; grid-template-columns: 280px 1fr; gap: 28px; align-items: flex-start;">
+        
+        <!-- STICKY FILTER SIDEBAR -->
+        <aside class="search-sidebar-filter" id="filter-sidebar" style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 22px; box-shadow: var(--shadow-sm); position: sticky; top: calc(var(--header-height) + 16px);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+            <p style="font-weight: 800; font-size: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-sliders" style="color: var(--primary);"></i> Bộ lọc
+            </p>
+            <button type="button" class="btn btn-outline btn-sm" onclick="resetSearchFilters()" style="padding: 4px 10px; font-size: 0.78rem;">Đặt lại</button>
+          </div>
+
+          <!-- Tỉnh / Thành phố -->
+          <div class="filter-section-block">
+            <div class="filter-section-title">Điểm đến / Tỉnh thành</div>
+            <select id="filter-province" class="form-control" style="font-size: 0.88rem; font-weight:600;" onchange="applySearchFilters()">
+              <option value="">Tất cả 63 tỉnh thành</option>
+            </select>
+          </div>
+
+          <!-- Danh mục địa điểm -->
+          <div class="filter-section-block">
+            <div class="filter-section-title">Danh mục</div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button type="button" class="filter-chip-btn" data-type="1" onclick="toggleTypeFilter(1, this)"><i class="fa-solid fa-utensils"></i> Ăn uống</button>
+              <button type="button" class="filter-chip-btn" data-type="2" onclick="toggleTypeFilter(2, this)"><i class="fa-solid fa-camera"></i> Du lịch</button>
+              <button type="button" class="filter-chip-btn" data-type="3" onclick="toggleTypeFilter(3, this)"><i class="fa-solid fa-hotel"></i> Lưu trú</button>
+              <button type="button" class="filter-chip-btn" data-type="4" onclick="toggleTypeFilter(4, this)"><i class="fa-solid fa-gamepad"></i> Vui chơi</button>
+            </div>
+          </div>
+
+          <!-- Khoảng giá TripAdvisor -->
+          <div class="filter-section-block">
+            <div class="filter-section-title">Tầm giá</div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button type="button" class="filter-chip-btn" onclick="togglePriceFilter('budget', this)">$ Bình dân</button>
+              <button type="button" class="filter-chip-btn" onclick="togglePriceFilter('mid', this)">$$ Vừa phải</button>
+              <button type="button" class="filter-chip-btn" onclick="togglePriceFilter('luxury', this)">$$$ Cao cấp</button>
+            </div>
+          </div>
+
+          <!-- Đánh giá bong bóng xanh tối thiểu -->
+          <div class="filter-section-block">
+            <div class="filter-section-title">Đánh giá du khách</div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <button type="button" class="filter-chip-btn" style="justify-content: flex-start;" onclick="toggleRatingFilter(4.5, this)">
+                <span class="trip-bubbles"><span class="trip-bubble"></span><span class="trip-bubble"></span><span class="trip-bubble"></span><span class="trip-bubble"></span><span class="trip-bubble half"></span></span>
+                <span>4.5 trở lên (Tuyệt vời)</span>
+              </button>
+              <button type="button" class="filter-chip-btn" style="justify-content: flex-start;" onclick="toggleRatingFilter(4.0, this)">
+                <span class="trip-bubbles"><span class="trip-bubble"></span><span class="trip-bubble"></span><span class="trip-bubble"></span><span class="trip-bubble"></span><span class="trip-bubble empty"></span></span>
+                <span>4.0 trở lên (Rất tốt)</span>
+              </button>
+              <button type="button" class="filter-chip-btn" style="justify-content: flex-start;" onclick="toggleRatingFilter(3.5, this)">
+                <span class="trip-bubbles"><span class="trip-bubble"></span><span class="trip-bubble"></span><span class="trip-bubble"></span><span class="trip-bubble half"></span><span class="trip-bubble empty"></span></span>
+                <span>3.5 trở lên (Tốt)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Tiện ích & Đặc tính -->
+          <div class="filter-section-block" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">
+            <div class="filter-section-title">Tiện ích đặc trưng</div>
+            <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="check-open-now" onchange="applySearchFilters()" /> Đang mở cửa bây giờ
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="check-tc-only" onchange="applySearchFilters()" /> Travelers' Choice Awards
+              </label>
+            </div>
+          </div>
+
+        </aside>
+
+        <!-- RIGHT SEARCH RESULTS SECTION -->
+        <div>
+          <!-- Header count -->
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+            <h2 id="search-result-heading" style="font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Đang tải danh sách địa điểm...</h2>
+            <span id="search-result-count" style="font-size: 0.88rem; color: var(--text-muted); font-weight: 600;"></span>
+          </div>
+
+          <!-- Results Container -->
+          <div class="place-grid" id="search-results-grid">
+            <!-- Rendered by js/search.js -->
+          </div>
+
+          <div id="search-results-list" style="display: none;">
+            <!-- Rendered by js/search.js -->
+          </div>
+
+          <!-- Empty State -->
+          <div id="search-empty-state" style="display: none; text-align: center; padding: 60px 20px; background: #ffffff; border-radius: var(--radius-xl); border: 1px solid var(--border-color);">
+            <i class="fa-solid fa-magnifying-glass-location" style="font-size: 3rem; color: var(--primary); margin-bottom: 16px;"></i>
+            <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 8px;">Không tìm thấy địa điểm phù hợp</h3>
+            <p style="color: var(--text-muted); font-size: 0.92rem; max-width: 420px; margin: 0 auto 20px auto;">Hãy thử đổi từ khóa tìm kiếm hoặc điều chỉnh lại bộ lọc để khám phá thêm nhiều địa điểm hấp dẫn.</p>
+            <button type="button" class="btn btn-primary btn-sm" onclick="resetSearchFilters()">Xóa tất cả bộ lọc</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 3. FOOTER -->
+  <footer class="site-footer" id="site-footer-mount"></footer>
+
+  <!-- Scripts -->
+  <script src="../js/data.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/search.js"></script>
+</body>
+</html>

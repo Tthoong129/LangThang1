@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lang Thang - System Admin Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+      :root {
+          --admin-sidebar-width: 280px;
+          --admin-header-height: 70px;
+          --admin-primary: #2a6b57;
+          --admin-primary-dark: #1f5041;
+          --admin-bg: #f8f9fa;
+          --admin-surface: #ffffff;
+      }
+      body {
+          background-color: var(--admin-bg);
+          margin: 0;
+          font-family: 'Inter', sans-serif;
+      }
+      .admin-layout {
+          display: flex;
+          min-height: 100vh;
+      }
+      .admin-sidebar {
+          width: var(--admin-sidebar-width);
+          background-color: var(--admin-primary);
+          color: white;
+          position: fixed;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          overflow-y: auto;
+          padding-bottom: 30px;
+      }
+      .brand-logo {
+          height: var(--admin-header-height);
+          display: flex;
+          align-items: center;
+          padding: 0 20px;
+          background: rgba(0,0,0,0.1);
+          color: white;
+          text-decoration: none;
+      }
+      .brand-logo .brand-name {
+          font-weight: 700;
+          font-size: 1.2rem;
+          margin-left: 10px;
+      }
+      .sidebar-group {
+          padding: 15px 20px 5px;
+          font-size: 0.75rem;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          color: rgba(255,255,255,0.6);
+          font-weight: 600;
+      }
+      .admin-menu {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+      }
+      .admin-menu li a {
+          display: flex;
+          align-items: center;
+          padding: 12px 20px;
+          color: rgba(255,255,255,0.85);
+          text-decoration: none;
+          font-weight: 500;
+          transition: all 0.2s;
+      }
+      .admin-menu li a:hover, .admin-menu li a.active {
+          background: rgba(255,255,255,0.1);
+          color: white;
+          border-left: 4px solid #f39c12;
+      }
+      .admin-menu li a i {
+          width: 25px;
+          font-size: 1.1rem;
+          margin-right: 10px;
+      }
+      
+      .admin-main {
+          flex: 1;
+          margin-left: var(--admin-sidebar-width);
+          padding: 30px;
+      }
+      .table-container {
+          background: var(--admin-surface);
+          border-radius: 12px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+          padding: 20px;
+          overflow-x: auto;
+      }
+      .table {
+          width: 100%;
+          border-collapse: collapse;
+      }
+      .table th, .table td {
+          padding: 15px;
+          border-bottom: 1px solid #eee;
+          text-align: left;
+      }
+      .table th {
+          font-weight: 600;
+          color: var(--text-muted);
+      }
+      .action-btn {
+          border: none;
+          padding: 6px 12px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-weight: 500;
+          font-size: 0.85rem;
+          margin-right: 5px;
+      }
+      .btn-primary-sm { background: var(--admin-primary); color: white; }
+      .btn-danger-sm { background: #dc3545; color: white; }
+      .btn-warning-sm { background: #f39c12; color: white; }
+
+      .dashboard-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 20px;
+          margin-bottom: 30px;
+      }
+      .stat-card {
+          background: var(--admin-surface);
+          padding: 20px;
+          border-radius: 12px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      }
+      
+      .modal {
+          display: none;
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: rgba(0,0,0,0.5);
+          z-index: 1000;
+          align-items: center;
+          justify-content: center;
+      }
+      .modal.show { display: flex; }
+      .modal-content {
+          background: white;
+          padding: 30px;
+          border-radius: 12px;
+          width: 100%;
+          max-width: 500px;
+      }
+  </style>
+</head>
+<body>
+
+  <div class="admin-layout">
+      <aside class="admin-sidebar">
+          <a href="../index.html" class="brand-logo">
+            <div class="brand-name">
+              <span>Lang Thang</span><br>
+              <span style="font-size:0.8rem; font-weight:400;">System Admin</span>
+            </div>
+          </a>
+
+          <div class="sidebar-group">Tổng quan</div>
+          <ul class="admin-menu">
+              <li><a href="#" class="active" onclick="switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
+          </ul>
+
+          <div class="sidebar-group">Người dùng</div>
+          <ul class="admin-menu">
+              <li><a href="#" onclick="switchTab('users')"><i class="fa-solid fa-users"></i> Danh sách người dùng</a></li>
+          </ul>
+
+          <div class="sidebar-group">Quản trị Admin</div>
+          <ul class="admin-menu">
+              <li><a href="#" onclick="switchTab('category-admins')"><i class="fa-solid fa-user-shield"></i> Admin Cấp 1</a></li>
+          </ul>
+
+          <div class="sidebar-group">Dữ liệu địa lý</div>
+          <ul class="admin-menu">
+              <li><a href="#" onclick="switchTab('regions')"><i class="fa-solid fa-earth-asia"></i> Vùng miền</a></li>
+              <li><a href="#" onclick="switchTab('provinces')"><i class="fa-solid fa-map"></i> Tỉnh / Thành phố</a></li>
+          </ul>
+
+          <div class="sidebar-group">Phân loại</div>
+          <ul class="admin-menu">
+              <li><a href="#" onclick="switchTab('placetypes')"><i class="fa-solid fa-layer-group"></i> Loại địa điểm</a></li>
+              <li><a href="#" onclick="switchTab('categories')"><i class="fa-solid fa-tags"></i> Danh mục</a></li>
+          </ul>
+
+          <div class="sidebar-group">Địa điểm & Ẩm thực</div>
+          <ul class="admin-menu">
+              <li><a href="#" onclick="switchTab('places')"><i class="fa-solid fa-location-dot"></i> Địa điểm</a></li>
+              <li><a href="#" onclick="switchTab('foods')"><i class="fa-solid fa-bowl-food"></i> Món ăn</a></li>
+          </ul>
+
+          <div class="sidebar-group">Hệ thống</div>
+          <ul class="admin-menu">
+              <li><a href="#" onclick="switchTab('reportreasons')"><i class="fa-solid fa-list-check"></i> Lý do báo cáo</a></li>
+              <li><a href="#" onclick="switchTab('auditlogs')"><i class="fa-solid fa-clock-rotate-left"></i> Audit Logs</a></li>
+              <li><a href="#" onclick="api.logout()"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
+          </ul>
+      </aside>
+
+      <main class="admin-main">
+          <div class="d-flex justify-content-between align-items-center" style="margin-bottom: 30px;">
+              <h1 id="page-title">Dashboard</h1>
+              <button id="btn-add-new" class="btn btn-primary" style="display:none;" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> Thêm mới</button>
+          </div>
+
+          <!-- Dashboard View -->
+          <div id="dashboard-view">
+              <div class="dashboard-grid">
+                  <div class="stat-card" style="border-bottom: 4px solid var(--primary);">
+                      <div style="color:var(--text-muted); font-size:0.9rem; font-weight:600;">Tổng Users</div>
+                      <div id="stat-users" style="font-size:2rem; font-weight:700; margin-top:10px;">0</div>
+                  </div>
+                  <div class="stat-card" style="border-bottom: 4px solid #f39c12;">
+                      <div style="color:var(--text-muted); font-size:0.9rem; font-weight:600;">Admin Cấp 1</div>
+                      <div id="stat-admins" style="font-size:2rem; font-weight:700; margin-top:10px;">0</div>
+                  </div>
+                  <div class="stat-card" style="border-bottom: 4px solid #27ae60;">
+                      <div style="color:var(--text-muted); font-size:0.9rem; font-weight:600;">Tổng địa điểm (Duyệt)</div>
+                      <div id="stat-places" style="font-size:2rem; font-weight:700; margin-top:10px;">0</div>
+                  </div>
+                  <div class="stat-card" style="border-bottom: 4px solid #3498db;">
+                      <div style="color:var(--text-muted); font-size:0.9rem; font-weight:600;">Đánh giá</div>
+                      <div id="stat-reviews" style="font-size:2rem; font-weight:700; margin-top:10px;">0</div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Generic Table View -->
+          <div class="table-container" id="table-view" style="display: none;">
+              <table class="table">
+                  <thead>
+                      <tr id="table-head"></tr>
+                  </thead>
+                  <tbody id="table-body">
+                      <tr><td colspan="10" style="text-align:center;">Đang tải...</td></tr>
+                  </tbody>
+              </table>
+          </div>
+      </main>
+  </div>
+
+  <!-- Dynamic Modal -->
+  <div class="modal" id="dynamic-modal">
+      <div class="modal-content">
+          <h3 id="modal-title">Thêm mới</h3>
+          <div id="modal-body" style="margin-top:20px;">
+              <!-- Inputs generated by JS -->
+          </div>
+          <div style="text-align:right; margin-top:20px;">
+              <button class="btn btn-outline" onclick="closeModal('dynamic-modal')">Hủy</button>
+              <button class="btn btn-primary" id="modal-submit-btn">Lưu</button>
+          </div>
+      </div>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/system-admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đề Xuất Chỉnh Sửa Thông Tin - TravelReview</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header" id="site-header-mount"></header>
+
+  <main class="main-content">
+    <div class="container" style="max-width: 960px;">
+      
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb">
+        <a href="../index.html"><i class="fa-solid fa-house"></i> Trang chủ</a>
+        <i class="fa-solid fa-chevron-right breadcrumb-separator"></i>
+        <a href="search.html">Khám phá</a>
+        <i class="fa-solid fa-chevron-right breadcrumb-separator"></i>
+        <span>Đề xuất chỉnh sửa địa điểm</span>
+      </nav>
+
+      <!-- Section Title -->
+      <div style="margin-bottom: 28px;">
+        <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--text-main);">📝 Đề Xuất Chỉnh Sửa Thông Tin Địa Điểm</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">So sánh đối chiếu giữa thông tin hiện tại và những thay đổi bạn muốn đề xuất cập nhật.</p>
+      </div>
+
+      <!-- COMPARISON SIDE-BY-SIDE GRID -->
+      <form id="edit-proposal-form" onsubmit="event.preventDefault(); submitEditProposal();">
+        <div class="comparison-grid">
+          
+          <!-- LEFT: CURRENT INFO (READ-ONLY) -->
+          <div class="comparison-box">
+            <div class="comparison-box-title" style="color: var(--text-muted);">
+              <i class="fa-solid fa-database"></i> Thông tin hiện tại của hệ thống
+            </div>
+
+            <div class="diff-field">
+              <div class="diff-field-label">Tên địa điểm</div>
+              <div class="diff-field-val" id="cur-name">--</div>
+            </div>
+
+            <div class="diff-field">
+              <div class="diff-field-label">Địa chỉ</div>
+              <div class="diff-field-val" id="cur-address">--</div>
+            </div>
+
+            <div class="diff-field">
+              <div class="diff-field-label">Giờ mở cửa</div>
+              <div class="diff-field-val" id="cur-hours">--</div>
+            </div>
+
+            <div class="diff-field">
+              <div class="diff-field-label">Số điện thoại</div>
+              <div class="diff-field-val" id="cur-phone">--</div>
+            </div>
+
+            <div class="diff-field">
+              <div class="diff-field-label">Mô tả</div>
+              <div class="diff-field-val" id="cur-desc" style="font-size: 0.85rem; line-height: 1.5;">--</div>
+            </div>
+          </div>
+
+          <!-- RIGHT: PROPOSED CHANGES (EDITABLE) -->
+          <div class="comparison-box proposed">
+            <div class="comparison-box-title" style="color: var(--primary);">
+              <i class="fa-solid fa-pen-to-square"></i> Thông tin bạn muốn thay đổi
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Tên địa điểm mới</label>
+              <input type="text" id="prop-edit-name" class="form-control" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Địa chỉ mới</label>
+              <input type="text" id="prop-edit-address" class="form-control" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Giờ mở cửa mới</label>
+              <input type="text" id="prop-edit-hours" class="form-control" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Số điện thoại mới</label>
+              <input type="tel" id="prop-edit-phone" class="form-control" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Mô tả cập nhật</label>
+              <textarea id="prop-edit-desc" class="form-control" rows="3"></textarea>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Note & Submit -->
+        <div style="background: var(--bg-subtle); padding: 18px 24px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+          <div style="font-size: 0.88rem; color: var(--text-muted);">
+            <i class="fa-solid fa-shield-halved" style="color: var(--primary);"></i> Đề xuất chỉnh sửa sẽ được gửi tới Admin cấp 1 phụ trách danh mục để kiểm duyệt trước khi áp dụng.
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <a href="javascript:history.back()" class="btn btn-secondary">Hủy bỏ</a>
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> Gửi Đề Xuất Chỉnh Sửa</button>
+          </div>
+        </div>
+      </form>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer" id="site-footer-mount"></footer>
+
+  <!-- Scripts -->
+  <script src="../js/data.js"></script>
+  <script src="../js/ui.js"></script>
+  <script>
+    let placeToEdit = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('site-header-mount').innerHTML = UI.renderHeader('edit-propose');
+      document.getElementById('site-footer-mount').innerHTML = UI.renderFooter();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const placeId = parseInt(urlParams.get('id')) || 1;
+      placeToEdit = TravelData.getPlaceById(placeId);
+
+      if (placeToEdit) {
+        // Populate Current Info
+        document.getElementById('cur-name').innerText = placeToEdit.name;
+        document.getElementById('cur-address').innerText = placeToEdit.address;
+        document.getElementById('cur-hours').innerText = placeToEdit.openingHours || 'Chưa cập nhật';
+        document.getElementById('cur-phone').innerText = placeToEdit.phone || 'Chưa cập nhật';
+        document.getElementById('cur-desc').innerText = placeToEdit.description || 'Chưa cập nhật';
+
+        // Pre-fill editable fields
+        document.getElementById('prop-edit-name').value = placeToEdit.name;
+        document.getElementById('prop-edit-address').value = placeToEdit.address;
+        document.getElementById('prop-edit-hours').value = placeToEdit.openingHours || '';
+        document.getElementById('prop-edit-phone').value = placeToEdit.phone || '';
+        document.getElementById('prop-edit-desc').value = placeToEdit.description || '';
+      }
+    });
+
+    function submitEditProposal() {
+      UI.showToast('Đề xuất chỉnh sửa thông tin đã được gửi tới Ban quản trị!', 'success');
+      setTimeout(() => {
+        window.location.href = `place-detail.html?id=${placeToEdit.id}`;
+      }, 1500);
+    }
+  </script>
+</body>
+</html>

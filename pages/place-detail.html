@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi Tiết Địa Điểm — Lang Thang</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+
+  <style>
+    .gallery-mosaic-grid {
+      display: grid;
+      gap: 8px;
+      overflow: hidden;
+      border-radius: var(--radius-xl);
+      margin-bottom: 24px;
+    }
+    @media (min-width: 768px) {
+      .gallery-mosaic-grid {
+        grid-template-columns: 2fr 1fr 1fr;
+        grid-template-rows: repeat(2, 180px);
+      }
+      .gallery-main-item {
+        grid-row: span 2;
+      }
+    }
+    .gallery-mosaic-item {
+      position: relative;
+      overflow: hidden;
+      background: var(--bg-subtle);
+    }
+    .gallery-mosaic-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s ease;
+      cursor: pointer;
+    }
+    .gallery-mosaic-item:hover img {
+      transform: scale(1.05);
+    }
+    .gallery-more-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(36, 28, 21, 0.7);
+      backdrop-filter: blur(2px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border: none;
+      width: 100%;
+    }
+    .sticky-subnav-bar {
+      position: sticky;
+      top: var(--header-height);
+      background: rgba(250, 247, 242, 0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 100;
+      display: flex;
+      gap: 20px;
+      padding: 12px 0;
+      margin-bottom: 28px;
+      overflow-x: auto;
+    }
+    .subnav-link {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      transition: all var(--transition-fast);
+    }
+    .subnav-link:hover, .subnav-link.active {
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header" id="site-header-mount"></header>
+
+  <main class="main-content">
+    <div class="container" id="place-detail-content">
+      
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" style="display:flex; align-items:center; gap:8px; font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
+        <a href="../index.html">Trang chủ</a> <i class="fa-solid fa-chevron-right" style="font-size:0.65rem;"></i>
+        <a href="search.html" id="breadcrumb-category">Khám phá</a> <i class="fa-solid fa-chevron-right" style="font-size:0.65rem;"></i>
+        <span id="breadcrumb-place-name" style="color: var(--text-main); font-weight: 700;">Chi tiết địa điểm</span>
+      </nav>
+
+      <!-- TOP HEADER TITLE & RATINGS & ACTIONS (With Partial Popover Actions) -->
+      <div style="margin-bottom: 20px;">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
+              <span class="badge badge-travelers-choice" id="place-tc-badge"><i class="fa-solid fa-award"></i> Travelers' Choice 2024</span>
+              <span class="badge badge-category" id="place-category-badge">Ăn uống</span>
+              <span class="rank-tag-pill" id="place-ranking-text">🏆 #1 trong số 480 địa điểm tại TP. Hồ Chí Minh</span>
+            </div>
+            <h1 id="place-title" style="font-size: 2.3rem; font-weight: 800; line-height: 1.2; margin-bottom: 10px; color: var(--text-main);">Tên địa điểm</h1>
+            
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+              <div id="place-bubble-rating-mount"></div>
+              <span style="color: var(--text-light);">•</span>
+              <span id="place-price-tier" style="font-weight: 700; color: var(--text-main);">$$ - $$$</span>
+              <span style="color: var(--text-light);">•</span>
+              <span class="badge badge-open"><i class="fa-solid fa-circle" style="font-size:0.45rem;"></i> Đang mở cửa</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons (Lưu, Viết đánh giá, Menu Chức Năng Nhanh Popover) -->
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-outline btn-sm" id="btn-detail-favorite">
+              <i class="fa-regular fa-heart"></i> Lưu vào danh sách
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="openWriteReviewModal()">
+              <i class="fa-solid fa-pen"></i> Viết đánh giá
+            </button>
+            
+            <!-- Partial Action Menu Popover -->
+            <div class="popover-menu-wrap">
+              <button class="btn btn-outline btn-sm" onclick="toggleQuickActionMenu(event)">
+                <i class="fa-solid fa-ellipsis"></i> Tùy chọn <i class="fa-solid fa-chevron-down" style="font-size:0.65rem;"></i>
+              </button>
+              <div class="popover-menu" id="quick-action-popover">
+                <button class="popover-item" onclick="navigator.clipboard.writeText(window.location.href); UI.showToast('Đã sao chép liên kết chia sẻ!', 'success');">
+                  <i class="fa-solid fa-share-nodes" style="color:var(--primary);"></i> Chia sẻ liên kết
+                </button>
+                <a href="propose-place.html" class="popover-item">
+                  <i class="fa-solid fa-pen-to-square" style="color:var(--accent);"></i> Đề xuất sửa đổi
+                </a>
+                <button class="popover-item" onclick="openReportModal('place', currentPlace ? currentPlace.id : 1)">
+                  <i class="fa-solid fa-flag" style="color:var(--rose);"></i> Báo cáo sai phạm
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MOSAIC PHOTO GALLERY (5-Photo Mosaic Layout) -->
+      <div class="gallery-mosaic-grid" id="gallery-mosaic">
+        <div class="gallery-mosaic-item gallery-main-item">
+          <img id="gallery-img-1" src="" alt="Ảnh đại diện chính" onclick="openPhotoViewer(0)" />
+        </div>
+        <div class="gallery-mosaic-item">
+          <img id="gallery-img-2" src="" alt="Ảnh 2" onclick="openPhotoViewer(1)" />
+        </div>
+        <div class="gallery-mosaic-item">
+          <img id="gallery-img-3" src="" alt="Ảnh 3" onclick="openPhotoViewer(2)" />
+        </div>
+        <div class="gallery-mosaic-item">
+          <img id="gallery-img-4" src="" alt="Ảnh 4" onclick="openPhotoViewer(3)" />
+        </div>
+        <div class="gallery-mosaic-item" style="position: relative;">
+          <img id="gallery-img-5" src="" alt="Ảnh 5" onclick="openPhotoViewer(4)" />
+          <button id="gallery-more-btn" class="gallery-more-overlay" onclick="openPhotoViewer(0)">
+            <i class="fa-solid fa-camera" style="font-size:1.3rem;"></i>
+            <span id="gallery-more-text">Xem tất cả ảnh</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- STICKY SUB-NAV BAR -->
+      <div class="sticky-subnav-bar">
+        <a href="#sec-overview" class="subnav-link active">Tổng quan</a>
+        <a href="#sec-amenities" class="subnav-link">Tiện ích & Giờ mở cửa</a>
+        <a href="#sec-reviews" class="subnav-link">Đánh giá du khách</a>
+        <a href="#sec-location" class="subnav-link">Vị trí & Chỉ đường</a>
+        <a href="#sec-related" class="subnav-link">Địa điểm lân cận</a>
+      </div>
+
+      <!-- MAIN CONTENT 2-COLUMN LAYOUT -->
+      <div class="detail-grid-layout" style="display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: flex-start;">
+        
+        <!-- LEFT COLUMN: Overview, Amenities, Review Breakdown, Review List -->
+        <div class="detail-main-col">
+          
+          <!-- SECTION: TỔNG QUAN / ABOUT -->
+          <div id="sec-overview" style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 28px; margin-bottom: 28px; box-shadow: var(--shadow-sm);">
+            <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 14px;">Giới thiệu về địa điểm</h2>
+            <p id="place-description-text" style="font-size: 0.95rem; color: var(--text-body); line-height: 1.7; white-space: pre-line;">
+              Đang tải nội dung giới thiệu...
+            </p>
+          </div>
+
+          <!-- SECTION: TIỆN ÍCH & TIỆN NGHI -->
+          <div id="sec-amenities" style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 28px; margin-bottom: 28px; box-shadow: var(--shadow-sm);">
+            <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 16px;">Tiện ích & Dịch vụ nổi bật</h2>
+            
+            <div class="amenities-grid" id="place-amenities-grid">
+              <div class="amenity-item"><i class="fa-solid fa-wifi"></i> Wi-Fi miễn phí</div>
+              <div class="amenity-item"><i class="fa-solid fa-snowflake"></i> Máy lạnh điều hòa</div>
+              <div class="amenity-item"><i class="fa-solid fa-credit-card"></i> Thanh toán thẻ / QR</div>
+              <div class="amenity-item"><i class="fa-solid fa-motorcycle"></i> Bãi giữ xe rộng rãi</div>
+              <div class="amenity-item"><i class="fa-solid fa-chair"></i> Chỗ ngồi ngoài trời thoáng mát</div>
+              <div class="amenity-item"><i class="fa-solid fa-people-roof"></i> Phù hợp gia đình & trẻ em</div>
+            </div>
+          </div>
+
+          <!-- SECTION: BẢNG PHÂN TÍCH ĐÁNH GIÁ (Rating Breakdown) -->
+          <div id="sec-reviews" class="review-breakdown-card">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h2 style="font-size: 1.4rem; font-weight: 800; margin: 0;">Đánh giá của du khách</h2>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="openWriteReviewModal()">
+                <i class="fa-solid fa-pen"></i> Viết đánh giá
+              </button>
+            </div>
+
+            <!-- Score Summary + Rating Bars -->
+            <div style="display: grid; grid-template-columns: 180px 1fr; gap: 24px; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border-subtle);">
+              <div style="text-align: center; padding: 12px; background: var(--bg-subtle); border-radius: var(--radius-lg);">
+                <div style="font-size: 2.8rem; font-weight: 800; color: var(--primary); line-height: 1;" id="review-score-big">4.8</div>
+                <div id="big-bubble-mount" style="margin: 8px 0;"></div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);" id="review-total-count">1.420 đánh giá</div>
+              </div>
+
+              <!-- Rating Bars (5 to 1) -->
+              <div>
+                <div class="rating-bar-item" onclick="filterReviewsByRating(5)">
+                  <span class="rating-bar-label">Tuyệt vời (5★)</span>
+                  <div class="rating-bar-track"><div class="rating-bar-fill" id="bar-5" style="width: 82%;"></div></div>
+                  <span class="rating-bar-count" id="count-5">82%</span>
+                </div>
+                <div class="rating-bar-item" onclick="filterReviewsByRating(4)">
+                  <span class="rating-bar-label">Rất tốt (4★)</span>
+                  <div class="rating-bar-track"><div class="rating-bar-fill" id="bar-4" style="width: 14%;"></div></div>
+                  <span class="rating-bar-count" id="count-4">14%</span>
+                </div>
+                <div class="rating-bar-item" onclick="filterReviewsByRating(3)">
+                  <span class="rating-bar-label">Trung bình (3★)</span>
+                  <div class="rating-bar-track"><div class="rating-bar-fill" id="bar-3" style="width: 3%;"></div></div>
+                  <span class="rating-bar-count" id="count-3">3%</span>
+                </div>
+                <div class="rating-bar-item" onclick="filterReviewsByRating(2)">
+                  <span class="rating-bar-label">Kém (2★)</span>
+                  <div class="rating-bar-track"><div class="rating-bar-fill" id="bar-2" style="width: 1%;"></div></div>
+                  <span class="rating-bar-count" id="count-2">1%</span>
+                </div>
+                <div class="rating-bar-item" onclick="filterReviewsByRating(1)">
+                  <span class="rating-bar-label">Tồi tệ (1★)</span>
+                  <div class="rating-bar-track"><div class="rating-bar-fill" id="bar-1" style="width: 0%;"></div></div>
+                  <span class="rating-bar-count" id="count-1">0%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Traveler Type Filter Chips -->
+            <div style="margin-top: 18px;">
+              <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 8px;">Lọc theo loại hình du khách:</div>
+              <div class="review-traveler-chips">
+                <button type="button" class="review-chip active" onclick="filterReviewsByTravelerType('all', this)">Tất cả đánh giá</button>
+                <button type="button" class="review-chip" onclick="filterReviewsByTravelerType('couples', this)">Cặp đôi</button>
+                <button type="button" class="review-chip" onclick="filterReviewsByTravelerType('family', this)">Gia đình</button>
+                <button type="button" class="review-chip" onclick="filterReviewsByTravelerType('friends', this)">Nhóm bạn bè</button>
+                <button type="button" class="review-chip" onclick="filterReviewsByTravelerType('solo', this)">Đi một mình</button>
+              </div>
+            </div>
+
+            <!-- Review Items List Container -->
+            <div id="reviews-list-container" style="margin-top: 20px;">
+              <!-- Rendered by js/place.js -->
+            </div>
+          </div>
+
+          <!-- SECTION: GỢI Ý ĐỊA ĐIỂM TƯƠNG TỰ / LÂN CẬN -->
+          <div id="sec-related" style="margin-top: 40px;">
+            <div class="section-header">
+              <div class="section-title-wrap">
+                <h2><i class="fa-solid fa-compass" style="color: var(--primary);"></i> Du khách cũng quan tâm</h2>
+                <p>Những địa điểm du lịch & ẩm thực cùng khu vực được yêu thích</p>
+              </div>
+            </div>
+            <div class="place-grid" id="related-places-grid">
+              <!-- Rendered by js/place.js -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT SIDEBAR: Contact Info, Live Hours, Mini Map, Actions -->
+        <aside class="detail-sidebar" style="position: sticky; top: calc(var(--header-height) + 16px); display: flex; flex-direction: column; gap: 18px;">
+          
+          <!-- Key Info Card -->
+          <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 22px; box-shadow: var(--shadow-sm);">
+            <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 16px; color: var(--text-main);">Thông tin liên hệ</h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 14px; font-size: 0.9rem;">
+              <div style="display: flex; gap: 12px;">
+                <i class="fa-solid fa-location-dot" style="color: var(--primary); margin-top: 3px;"></i>
+                <div style="color: var(--text-body); font-weight: 600;" id="sidebar-address-label">Địa chỉ</div>
+              </div>
+
+              <div style="display: flex; gap: 12px;">
+                <i class="fa-solid fa-clock" style="color: var(--primary); margin-top: 3px;"></i>
+                <div>
+                  <div style="font-weight: 700; color: var(--primary);">Giờ hoạt động</div>
+                  <div style="color: var(--text-body);" id="place-hours-text">07:00 – 22:00 hằng ngày</div>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 12px;">
+                <i class="fa-solid fa-phone" style="color: var(--primary); margin-top: 3px;"></i>
+                <div>
+                  <div style="font-weight: 700; color: var(--text-main);">Hotline đặt bàn / hỗ trợ</div>
+                  <div style="color: var(--text-body);" id="place-phone-text">0912 345 678</div>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 12px;">
+                <i class="fa-solid fa-globe" style="color: var(--primary); margin-top: 3px;"></i>
+                <div>
+                  <div style="font-weight: 700; color: var(--text-main);">Trang web chính thức</div>
+                  <div id="place-website-text">Đang cập nhật</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Get Directions Button -->
+            <a id="btn-detail-directions" href="#" target="_blank" rel="noopener" class="btn btn-primary btn-block" style="margin-top: 18px;">
+              <i class="fa-solid fa-diamond-turn-right"></i> Chỉ đường trên bản đồ
+            </a>
+          </div>
+
+          <!-- Mini Map Card -->
+          <div id="sec-location" style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-sm);">
+            <div style="padding: 16px 20px; font-weight: 800; font-size: 1rem; border-bottom: 1px solid var(--border-color);">
+              <i class="fa-solid fa-map-location-dot" style="color: var(--primary);"></i> Vị trí trên bản đồ
+            </div>
+            <div id="mini-map" style="width: 100%; height: 220px;"></div>
+          </div>
+
+          <!-- Proposal / Admin Edit buttons -->
+          <div style="display: flex; gap: 10px;">
+            <button id="btn-suggest-edit" class="btn btn-outline btn-sm btn-block" style="display: none;">
+              <i class="fa-solid fa-pen-to-square"></i> Đề xuất sửa đổi
+            </button>
+            <button id="btn-edit-place" class="btn btn-accent btn-sm btn-block" style="display: none;">
+              <i class="fa-solid fa-gear"></i> Quản trị
+            </button>
+          </div>
+
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- WRITE REVIEW MODAL -->
+  <div class="modal-backdrop" id="modal-write-review">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Viết đánh giá trải nghiệm</h3>
+        <button class="modal-close-btn" onclick="UI.closeModal('modal-write-review')">&times;</button>
+      </div>
+
+      <form id="form-write-review" onsubmit="handleReviewSubmit(event)">
+        <!-- Bubble rating picker -->
+        <div class="form-group">
+          <label class="form-label">Đánh giá chung của bạn về địa điểm này *</label>
+          <div style="display: flex; gap: 8px; font-size: 1.6rem; color: var(--primary); cursor: pointer;" id="modal-bubble-picker">
+            <i class="fa-solid fa-circle" data-val="1" onclick="setModalRating(1)"></i>
+            <i class="fa-solid fa-circle" data-val="2" onclick="setModalRating(2)"></i>
+            <i class="fa-solid fa-circle" data-val="3" onclick="setModalRating(3)"></i>
+            <i class="fa-solid fa-circle" data-val="4" onclick="setModalRating(4)"></i>
+            <i class="fa-solid fa-circle" data-val="5" onclick="setModalRating(5)"></i>
+          </div>
+          <input type="hidden" id="review-input-rating" value="5" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Loại hình chuyến đi của bạn</label>
+          <select id="review-input-type" class="form-control">
+            <option value="Cặp đôi">Cặp đôi</option>
+            <option value="Gia đình">Gia đình</option>
+            <option value="Bạn bè">Bạn bè</option>
+            <option value="Đi một mình">Đi một mình</option>
+            <option value="Công tác">Công tác</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tiêu đề đánh giá *</label>
+          <input type="text" id="review-input-title" class="form-control" placeholder="Tóm tắt trải nghiệm của bạn (VD: Không gian tuyệt đẹp, đồ ăn ngon)" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Chia sẻ chi tiết trải nghiệm *</label>
+          <textarea id="review-input-content" class="form-control" rows="4" placeholder="Kể cho những du khách khác về dịch vụ, giá cả, món ăn hoặc lời khuyên hữu ích..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">
+          <i class="fa-solid fa-paper-plane"></i> Gửi đánh giá
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. FOOTER -->
+  <footer class="site-footer" id="site-footer-mount"></footer>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Scripts -->
+  <script src="../js/data.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/place.js"></script>
+</body>
+</html>
