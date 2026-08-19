@@ -10,6 +10,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/responsive.css">
@@ -100,6 +103,7 @@
     }
     .form-group {
       margin-bottom: 20px;
+      position: relative;
     }
     .form-label {
       display: block;
@@ -123,6 +127,62 @@
     .form-control:focus {
       border-color: #2563eb;
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    /* Map & Autocomplete Styling */
+    #propose-map {
+      height: 280px;
+      width: 100%;
+      border-radius: 12px;
+      border: 1.5px solid #e2e8f0;
+      margin-top: 10px;
+      margin-bottom: 18px;
+      z-index: 10;
+    }
+    .autocomplete-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      max-height: 240px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+      margin-top: 4px;
+    }
+    .autocomplete-item {
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      cursor: pointer;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.15s;
+    }
+    .autocomplete-item:hover {
+      background: #f8fafc;
+      color: #2563eb;
+    }
+    .autocomplete-item i {
+      color: #94a3b8;
+      font-size: 1rem;
+    }
+    .map-helper-badge {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      color: #1d4ed8;
+      margin-bottom: 8px;
     }
   </style>
 </head>
@@ -181,7 +241,7 @@
             
             <div class="form-group">
               <label class="form-label">Tên địa điểm <span style="color:var(--rose);">*</span></label>
-              <input type="text" id="wiz-name" class="form-control" placeholder="Ví dụ: Cà Phê Giảng, Đỉnh Fansipan, Bún Bò Huế..." />
+              <input type="text" id="wiz-name" class="form-control" placeholder="Ví dụ: Cà Phê Giảng, Đỉnh Fansipan, Quán Bụi..." />
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
@@ -205,30 +265,46 @@
             </div>
           </div>
 
-          <!-- STEP 2: ĐỊA CHỈ & TỌA ĐỘ -->
+          <!-- STEP 2: ĐỊA CHỈ & BẢN ĐỒ TƯƠNG TÁC (GOOGLE MAPS STYLE) -->
           <div class="wizard-pane" id="wizard-pane-2" style="display: none;">
-            <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; color: var(--text-main);">Bước 2: Địa chỉ & Vị trí</h3>
-            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin: 0;">Bước 2: Địa chỉ & Vị trí trên bản đồ</h3>
+              <button type="button" class="btn btn-sm btn-outline" onclick="locateUserGPS()" style="font-size: 0.8rem; font-weight: 700; padding: 6px 12px; border-radius: 8px;">
+                <i class="fa-solid fa-location-crosshairs" style="color: #2563eb;"></i> Vị trí hiện tại
+              </button>
+            </div>
+
             <div class="form-group">
+              <label class="form-label">Tìm kiếm & Gợi ý địa chỉ (nhập số nhà, tên đường, địa danh...) <span style="color:var(--rose);">*</span></label>
+              <div style="position: relative;">
+                <input type="text" id="wiz-address" class="form-control" placeholder="Nhập để tìm kiếm (Ví dụ: 140 Lê Lợi, Hồ Gươm, Chợ Bến Thành...)" autocomplete="off" oninput="handleAddressSearch(this.value)" />
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 14px; top: 14px; color: #94a3b8;"></i>
+                <div id="address-suggestions" class="autocomplete-dropdown"></div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
               <label class="form-label">Tỉnh / Thành phố <span style="color:var(--rose);">*</span></label>
-              <select id="wiz-province" class="form-control">
+              <select id="wiz-province" class="form-control" onchange="onProvinceChange(this.value)">
                 <option value="">-- Chọn Tỉnh / Thành --</option>
               </select>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Địa chỉ chi tiết <span style="color:var(--rose);">*</span></label>
-              <input type="text" id="wiz-address" class="form-control" placeholder="Số nhà, tên đường, phường/xã, quận/huyện..." />
+            <div class="map-helper-badge">
+              <span><i class="fa-solid fa-hand-pointer"></i> <strong>Mẹo:</strong> Bạn có thể <strong>kéo thả ghim đỏ</strong> hoặc <strong>click trực tiếp vào bản đồ</strong> để chọn vị trí chính xác!</span>
             </div>
 
+            <!-- INTERACTIVE LEAFLET MAP -->
+            <div id="propose-map"></div>
+
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-              <div class="form-group">
-                <label class="form-label">Vĩ độ (Latitude - Tùy chọn)</label>
-                <input type="number" step="0.000001" id="wiz-lat" class="form-control" placeholder="21.028511" />
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Vĩ độ (Latitude)</label>
+                <input type="number" step="0.000001" id="wiz-lat" class="form-control" placeholder="21.028511" onchange="updatePinFromInputs()" />
               </div>
-              <div class="form-group">
-                <label class="form-label">Kinh độ (Longitude - Tùy chọn)</label>
-                <input type="number" step="0.000001" id="wiz-lng" class="form-control" placeholder="105.854444" />
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Kinh độ (Longitude)</label>
+                <input type="number" step="0.000001" id="wiz-lng" class="form-control" placeholder="105.854444" onchange="updatePinFromInputs()" />
               </div>
             </div>
           </div>
@@ -320,11 +396,16 @@
   <footer class="site-footer" id="site-footer-mount"></footer>
 
   <!-- Scripts -->
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="../js/data.js"></script>
   <script src="../js/api.js"></script>
   <script src="../js/ui.js"></script>
   <script>
     let currentStep = 1;
+    let proposeMap = null;
+    let proposeMarker = null;
+    let searchDebounceTimer = null;
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('site-header-mount').innerHTML = UI.renderHeader('propose');
@@ -332,13 +413,20 @@
 
       initWizardOptions();
       updateWizardCategories(1); // Default to Ăn uống
+
+      // Close autocomplete on click outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#wiz-address') && !e.target.closest('#address-suggestions')) {
+          document.getElementById('address-suggestions').style.display = 'none';
+        }
+      });
     });
 
     function initWizardOptions() {
       const provSelect = document.getElementById('wiz-province');
       const provinces = TravelData.getProvinces();
       provSelect.innerHTML = '<option value="">-- Chọn Tỉnh / Thành --</option>' +
-        provinces.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        provinces.map(p => `<option value="${p.id}" data-name="${p.name}">${p.name}</option>`).join('');
     }
 
     function updateWizardCategories(typeId) {
@@ -426,6 +514,11 @@
       document.getElementById('wiz-prev-btn').style.display = currentStep > 1 ? 'inline-flex' : 'none';
       const nextBtn = document.getElementById('wiz-next-btn');
 
+      if (currentStep === 2) {
+        // Initialize or refresh map on Step 2
+        setTimeout(initProposeMap, 100);
+      }
+
       if (currentStep === 5) {
         nextBtn.innerHTML = '<i class="fa-solid fa-check"></i> Xác nhận & Gửi đề xuất';
         renderReviewSummary();
@@ -434,19 +527,224 @@
       }
     }
 
+    // -------------------------------------------------------------
+    // LEAFLET MAP & LOCATION PICKER
+    // -------------------------------------------------------------
+    function initProposeMap() {
+      const latInput = document.getElementById('wiz-lat');
+      const lngInput = document.getElementById('wiz-lng');
+      
+      let defaultLat = parseFloat(latInput.value) || 21.028511;
+      let defaultLng = parseFloat(lngInput.value) || 105.854444;
+
+      if (!latInput.value) latInput.value = defaultLat.toFixed(6);
+      if (!lngInput.value) lngInput.value = defaultLng.toFixed(6);
+
+      if (!proposeMap) {
+        proposeMap = L.map('propose-map').setView([defaultLat, defaultLng], 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; OpenStreetMap'
+        }).addTo(proposeMap);
+
+        // Custom marker icon
+        const redIcon = L.icon({
+          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        });
+
+        proposeMarker = L.marker([defaultLat, defaultLng], {
+          draggable: true,
+          icon: redIcon
+        }).addTo(proposeMap);
+
+        proposeMarker.bindPopup("<strong>Vị trí đã chọn</strong><br>Kéo ghim để điều chỉnh").openPopup();
+
+        // Marker drag event
+        proposeMarker.on('dragend', function (e) {
+          const pos = proposeMarker.getLatLng();
+          setCoordsAndReverseGeocode(pos.lat, pos.lng);
+        });
+
+        // Map click event
+        proposeMap.on('click', function (e) {
+          proposeMarker.setLatLng(e.latlng);
+          setCoordsAndReverseGeocode(e.latlng.lat, e.latlng.lng);
+        });
+      } else {
+        proposeMap.invalidateSize();
+      }
+    }
+
+    function setCoordsAndReverseGeocode(lat, lng) {
+      document.getElementById('wiz-lat').value = lat.toFixed(6);
+      document.getElementById('wiz-lng').value = lng.toFixed(6);
+
+      // Reverse geocode via Nominatim API to get address & province
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.display_name) {
+            const addrInput = document.getElementById('wiz-address');
+            if (!addrInput.value || addrInput.value.length < 5) {
+              addrInput.value = data.display_name;
+            }
+            autoMatchProvince(data.address);
+          }
+        })
+        .catch(err => console.log('Reverse geocode err:', err));
+    }
+
+    function updatePinFromInputs() {
+      const lat = parseFloat(document.getElementById('wiz-lat').value);
+      const lng = parseFloat(document.getElementById('wiz-lng').value);
+      if (proposeMarker && proposeMap && !isNaN(lat) && !isNaN(lng)) {
+        proposeMarker.setLatLng([lat, lng]);
+        proposeMap.panTo([lat, lng]);
+      }
+    }
+
+    function onProvinceChange(provId) {
+      const provCoords = {
+        1: [21.0285, 105.8542], // Hà Nội
+        2: [10.7769, 106.7009], // TP. HCM
+        3: [16.0544, 108.2022], // Đà Nẵng
+        4: [11.9404, 108.4583], // Lâm Đồng
+        5: [16.4637, 107.5909], // Thừa Thiên Huế
+        6: [10.0452, 105.7469], // Cần Thơ
+        7: [12.2388, 109.1967], // Khánh Hòa
+        8: [10.2899, 103.9840], // Kiên Giang
+        9: [20.9505, 107.0734], // Quảng Ninh
+        10: [20.2506, 105.9745] // Ninh Bình
+      };
+      const coords = provCoords[provId];
+      if (coords && proposeMap && proposeMarker) {
+        proposeMarker.setLatLng(coords);
+        proposeMap.flyTo(coords, 13);
+        document.getElementById('wiz-lat').value = coords[0];
+        document.getElementById('wiz-lng').value = coords[1];
+      }
+    }
+
+    function locateUserGPS() {
+      if (navigator.geolocation) {
+        UI.showToast('Đang định vị GPS...', 'info');
+        navigator.geolocation.getCurrentPosition((pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          if (proposeMap && proposeMarker) {
+            proposeMarker.setLatLng([lat, lng]);
+            proposeMap.flyTo([lat, lng], 15);
+            setCoordsAndReverseGeocode(lat, lng);
+            UI.showToast('Đã định vị thành công vị trí của bạn!', 'success');
+          }
+        }, (err) => {
+          UI.showToast('Không thể lấy vị trí GPS (vui lòng cấp quyền truy cập vị trí).', 'warning');
+        });
+      } else {
+        UI.showToast('Trình duyệt không hỗ trợ định vị GPS.', 'warning');
+      }
+    }
+
+    // -------------------------------------------------------------
+    // ADDRESS AUTOCOMPLETE (GOOGLE MAPS STYLE)
+    // -------------------------------------------------------------
+    function handleAddressSearch(query) {
+      clearTimeout(searchDebounceTimer);
+      const suggestionsBox = document.getElementById('address-suggestions');
+
+      if (!query || query.trim().length < 2) {
+        suggestionsBox.style.display = 'none';
+        return;
+      }
+
+      searchDebounceTimer = setTimeout(() => {
+        // Query OpenStreetMap Nominatim for Vietnam locations
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=vn&addressdetails=1&limit=5`)
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.length > 0) {
+              suggestionsBox.innerHTML = data.map((item, idx) => `
+                <div class="autocomplete-item" onclick="selectSuggestion(${item.lat}, ${item.lon}, '${item.display_name.replace(/'/g, "\\'")}', ${idx})">
+                  <i class="fa-solid fa-location-dot"></i>
+                  <div>
+                    <div style="font-weight: 700; color: #1e293b;">${item.name || item.display_name.split(',')[0]}</div>
+                    <small style="color: #64748b; font-size: 0.78rem;">${item.display_name}</small>
+                  </div>
+                </div>
+              `).join('');
+              suggestionsBox.style.display = 'block';
+            } else {
+              suggestionsBox.style.display = 'none';
+            }
+          })
+          .catch(() => {
+            suggestionsBox.style.display = 'none';
+          });
+      }, 350);
+    }
+
+    function selectSuggestion(lat, lng, displayName, idx) {
+      document.getElementById('wiz-address').value = displayName;
+      document.getElementById('address-suggestions').style.display = 'none';
+
+      document.getElementById('wiz-lat').value = parseFloat(lat).toFixed(6);
+      document.getElementById('wiz-lng').value = parseFloat(lng).toFixed(6);
+
+      if (proposeMap && proposeMarker) {
+        proposeMarker.setLatLng([lat, lng]);
+        proposeMap.flyTo([lat, lng], 16);
+      }
+
+      // Automatically match province from string
+      const provinces = TravelData.getProvinces();
+      const provSelect = document.getElementById('wiz-province');
+      for (const p of provinces) {
+        if (displayName.toLowerCase().includes(p.name.toLowerCase()) || displayName.toLowerCase().includes(p.name.replace('TP. ', '').toLowerCase())) {
+          provSelect.value = p.id;
+          break;
+        }
+      }
+    }
+
+    function autoMatchProvince(addressObj) {
+      if (!addressObj) return;
+      const state = (addressObj.state || addressObj.city || addressObj.province || '').toLowerCase();
+      const provinces = TravelData.getProvinces();
+      const provSelect = document.getElementById('wiz-province');
+      for (const p of provinces) {
+        const cleanName = p.name.toLowerCase().replace('tp. ', '').replace('tỉnh ', '');
+        if (state.includes(cleanName) || cleanName.includes(state)) {
+          provSelect.value = p.id;
+          break;
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
+    // REVIEW SUMMARY & FINAL SUBMIT
+    // -------------------------------------------------------------
     function renderReviewSummary() {
       const name = document.getElementById('wiz-name').value;
       const catSelect = document.getElementById('wiz-category');
       const catName = catSelect.options[catSelect.selectedIndex]?.getAttribute('data-name') || catSelect.options[catSelect.selectedIndex]?.text || '';
       const provSelect = document.getElementById('wiz-province');
-      const provName = provSelect.options[provSelect.selectedIndex]?.text || '';
+      const provName = provSelect.options[provSelect.selectedIndex]?.getAttribute('data-name') || provSelect.options[provSelect.selectedIndex]?.text || '';
       const address = document.getElementById('wiz-address').value;
       const hours = document.getElementById('wiz-hours').value || '07:00 – 22:00';
+      const lat = document.getElementById('wiz-lat').value;
+      const lng = document.getElementById('wiz-lng').value;
 
       document.getElementById('wizard-review-summary').innerHTML = `
         <div><strong>Tên địa điểm:</strong> ${name}</div>
         <div><strong>Danh mục:</strong> ${catName}</div>
         <div><strong>Địa chỉ:</strong> ${address}, ${provName}</div>
+        <div><strong>Tọa độ GPS:</strong> ${lat}, ${lng}</div>
         <div><strong>Giờ mở cửa:</strong> ${hours}</div>
       `;
     }
@@ -462,7 +760,7 @@
       const catName = catSelect.options[catSelect.selectedIndex]?.getAttribute('data-name') || catSelect.options[catSelect.selectedIndex]?.text || 'Ẩm thực';
       const provSelect = document.getElementById('wiz-province');
       const provId = parseInt(provSelect.value) || 1;
-      const provName = provSelect.options[provSelect.selectedIndex]?.text || 'Hà Nội';
+      const provName = provSelect.options[provSelect.selectedIndex]?.getAttribute('data-name') || provSelect.options[provSelect.selectedIndex]?.text || 'Hà Nội';
 
       const imgUrl = document.getElementById('wiz-img-url').value.trim() || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800';
 
