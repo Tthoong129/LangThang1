@@ -652,77 +652,209 @@
     }
 
     // -------------------------------------------------------------
-    // ADDRESS AUTOCOMPLETE (GOOGLE MAPS STYLE)
+    // VIETNAMESE STREET DATABASE & GOOGLE MAPS AUTOCOMPLETE ENGINE
     // -------------------------------------------------------------
+    const VN_STREET_DB = [
+      // TP. Hồ Chí Minh (ProvId: 2)
+      { street: "Đường Huỳnh Văn Bánh", district: "Phú Nhuận", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.7932, lng: 106.6775 },
+      { street: "Đường Phan Đình Phùng", district: "Phú Nhuận", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.7951, lng: 106.6852 },
+      { street: "Hai Bà Trưng", district: "Tân Định, Quận 1", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.7877, lng: 106.6914 },
+      { street: "Đường Hồng Hà", district: "Phường 2, Tân Bình", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.8122, lng: 106.6644 },
+      { street: "Bùi Văn Ba", district: "Tân Thuận Đông, Quận 7", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.7554, lng: 106.7321 },
+      { street: "Nguyễn Huệ", district: "Bến Nghé, Quận 1", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.7743, lng: 106.7032 },
+      { street: "Lê Lợi", district: "Bến Thành, Quận 1", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.7725, lng: 106.6998 },
+      { street: "Đồng Khởi", district: "Bến Nghé, Quận 1", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.7761, lng: 106.7042 },
+      { street: "Nguyễn Thị Minh Khai", district: "Đa Kao, Quận 1", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.7871, lng: 106.6989 },
+      { street: "Nam Kỳ Khởi Nghĩa", district: "Võ Thị Sáu, Quận 3", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.7865, lng: 106.6872 },
+      { street: "Điện Biên Phủ", district: "Phường 25, Bình Thạnh", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.8012, lng: 106.7145 },
+      { street: "Cách Mạng Tháng 8", district: "Phường 10, Quận 3", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.7788, lng: 106.6791 },
+      { street: "Nguyễn Trãi", district: "Phường 2, Quận 5", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.7562, lng: 106.6723 },
+      { street: "Trần Hưng Đạo", district: "Cầu Kho, Quận 1", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.7612, lng: 106.6874 },
+      { street: "Phan Xích Long", district: "Phường 2, Phú Nhuận", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.7981, lng: 106.6912 },
+      { street: "Lê Văn Sỹ", district: "Phường 13, Quận 3", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.7902, lng: 106.6734 },
+      { street: "Cộng Hòa", district: "Phường 12, Tân Bình", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.8015, lng: 106.6492 },
+      { street: "Quang Trung", district: "Phường 10, Gò Vấp", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.8385, lng: 106.6652 },
+      { street: "Phạm Văn Đồng", district: "Hiệp Bình Chánh, Thủ Đức", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.8285, lng: 106.7214 },
+      { street: "Nguyễn Văn Linh", district: "Tân Phong, Quận 7", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.7302, lng: 106.7085 },
+
+      // Hà Nội (ProvId: 1)
+      { street: "Tràng Tiền", district: "Hoàn Kiếm", city: "Hà Nội", provId: 1, lat: 21.0252, lng: 105.8561 },
+      { street: "Đinh Tiên Hoàng", district: "Hàng Bạc, Hoàn Kiếm", city: "Hà Nội", provId: 1, lat: 21.0312, lng: 105.8534 },
+      { street: "Hàng Gai", district: "Hàng Trống, Hoàn Kiếm", city: "Hà Nội", provId: 1, lat: 21.0331, lng: 105.8495 },
+      { street: "Bà Triệu", district: "Hàng Bài, Hoàn Kiếm", city: "Hà Nội", provId: 1, lat: 21.0182, lng: 105.8504 },
+      { street: "Phố Huế", district: "Ngô Thì Nhậm, Hai Bà Trưng", city: "Hà Nội", provId: 1, lat: 21.0142, lng: 105.8521 },
+      { street: "Phan Đình Phùng", district: "Quán Thánh, Ba Đình", city: "Hà Nội", provId: 1, lat: 21.0412, lng: 105.8415 },
+      { street: "Hoàng Diệu", district: "Điện Bàn, Ba Đình", city: "Hà Nội", provId: 1, lat: 21.0365, lng: 105.8398 },
+      { street: "Kim Mã", district: "Ngọc Khánh, Ba Đình", city: "Hà Nội", provId: 1, lat: 21.0315, lng: 105.8182 },
+      { street: "Giảng Võ", district: "Cát Linh, Đống Đa", city: "Hà Nội", provId: 1, lat: 21.0278, lng: 105.8245 },
+      { street: "Xã Đàn", district: "Nam Đồng, Đống Đa", city: "Hà Nội", provId: 1, lat: 21.0152, lng: 105.8315 },
+      { street: "Cầu Giấy", district: "Quan Hoa, Cầu Giấy", city: "Hà Nội", provId: 1, lat: 21.0352, lng: 105.7975 },
+      { street: "Xuân Thủy", district: "Dịch Vọng Hậu, Cầu Giấy", city: "Hà Nội", provId: 1, lat: 21.0371, lng: 105.7892 },
+      { street: "Lạc Long Quân", district: "Nhật Tân, Tây Hồ", city: "Hà Nội", provId: 1, lat: 21.0712, lng: 105.8145 },
+      { street: "Hoàng Hoa Thám", district: "Thụy Khuê, Tây Hồ", city: "Hà Nội", provId: 1, lat: 21.0425, lng: 105.8205 },
+
+      // Đà Nẵng (ProvId: 3)
+      { street: "Bạch Đằng", district: "Hải Châu 1", city: "Đà Nẵng", provId: 3, lat: 16.0685, lng: 108.2235 },
+      { street: "Trần Phú", district: "Hải Châu 1", city: "Đà Nẵng", provId: 3, lat: 16.0712, lng: 108.2221 },
+      { street: "Nguyễn Văn Linh", district: "Nam Dương", city: "Đà Nẵng", provId: 3, lat: 16.0621, lng: 108.2165 },
+      { street: "Võ Nguyên Giáp", district: "Phước Mỹ, Sơn Trà", city: "Đà Nẵng", provId: 3, lat: 16.0652, lng: 108.2465 },
+      { street: "Lê Duẩn", district: "Thạch Thang, Hải Châu", city: "Đà Nẵng", provId: 3, lat: 16.0735, lng: 108.2185 },
+
+      // Đà Lạt (ProvId: 4)
+      { street: "Nguyễn Thị Minh Khai", district: "Phường 1", city: "Đà Lạt, Lâm Đồng", provId: 4, lat: 11.9425, lng: 108.4385 },
+      { street: "Trần Phú", district: "Phường 3", city: "Đà Lạt, Lâm Đồng", provId: 4, lat: 11.9365, lng: 108.4342 },
+      { street: "Trương Công Định", district: "Phường 1", city: "Đà Lạt, Lâm Đồng", provId: 4, lat: 11.9431, lng: 108.4372 },
+      { street: "Bùi Thị Xuân", district: "Phường 2", city: "Đà Lạt, Lâm Đồng", provId: 4, lat: 11.9485, lng: 108.4412 },
+
+      // Famous Landmarks
+      { street: "Hồ Hoàn Kiếm", district: "Hàng Trống, Hoàn Kiếm", city: "Hà Nội", provId: 1, lat: 21.0285, lng: 105.8542 },
+      { street: "Chợ Bến Thành", district: "Bến Thành, Quận 1", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.7725, lng: 106.6980 },
+      { street: "Landmark 81", district: "Phường 22, Bình Thạnh", city: "TP. Hồ Chí Minh", provId: 2, lat: 10.7951, lng: 106.7218 },
+      { street: "Bà Nà Hills", district: "Hòa Vang", city: "Đà Nẵng", provId: 3, lat: 15.9985, lng: 107.9965 },
+      { street: "Cầu Rồng", district: "Hải Châu", city: "Đà Nẵng", provId: 3, lat: 16.0611, lng: 108.2274 },
+      { street: "Bãi Sao", district: "An Thới", city: "Phú Quốc, Kiên Giang", provId: 8, lat: 10.0545, lng: 104.0321 }
+    ];
+
+    function removeVietnameseTones(str) {
+      if (!str) return '';
+      str = str.toLowerCase();
+      str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+      str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+      str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+      str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+      str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+      str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+      str = str.replace(/đ/g, "d");
+      return str.trim();
+    }
+
     function handleAddressSearch(query) {
       clearTimeout(searchDebounceTimer);
       const suggestionsBox = document.getElementById('address-suggestions');
 
-      if (!query || query.trim().length < 2) {
+      if (!query || query.trim().length === 0) {
         suggestionsBox.style.display = 'none';
         return;
       }
 
-      searchDebounceTimer = setTimeout(() => {
-        // Query OpenStreetMap Nominatim for Vietnam locations
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=vn&addressdetails=1&limit=5`)
-          .then(res => res.json())
-          .then(data => {
-            if (data && data.length > 0) {
-              suggestionsBox.innerHTML = data.map((item, idx) => `
-                <div class="autocomplete-item" onclick="selectSuggestion(${item.lat}, ${item.lon}, '${item.display_name.replace(/'/g, "\\'")}', ${idx})">
-                  <i class="fa-solid fa-location-dot"></i>
-                  <div>
-                    <div style="font-weight: 700; color: #1e293b;">${item.name || item.display_name.split(',')[0]}</div>
-                    <small style="color: #64748b; font-size: 0.78rem;">${item.display_name}</small>
-                  </div>
-                </div>
-              `).join('');
-              suggestionsBox.style.display = 'block';
-            } else {
-              suggestionsBox.style.display = 'none';
-            }
-          })
-          .catch(() => {
-            suggestionsBox.style.display = 'none';
+      const rawQuery = query.trim();
+      const cleanQ = removeVietnameseTones(rawQuery);
+
+      // Extract leading numbers (house number like 210, 110, 140/5, etc.)
+      const numMatch = rawQuery.match(/^(\d+[\w\/\-]*)\s*(.*)$/);
+      const houseNum = numMatch ? numMatch[1] : '';
+      const streetPart = numMatch ? numMatch[2] : rawQuery;
+      const cleanStreetPart = removeVietnameseTones(streetPart).replace(/^duong\s+/, '');
+
+      let matchedItems = [];
+
+      // 1. Match from rich Vietnamese Street Database
+      VN_STREET_DB.forEach(item => {
+        const cleanStreet = removeVietnameseTones(item.street);
+        const cleanDistrict = removeVietnameseTones(item.district);
+        const cleanCity = removeVietnameseTones(item.city);
+
+        let isMatch = false;
+        if (!cleanStreetPart || cleanStreetPart.length === 0) {
+          // If user only typed numbers like "210" or "110", match all top streets!
+          isMatch = true;
+        } else if (cleanStreet.includes(cleanStreetPart) || cleanDistrict.includes(cleanStreetPart) || cleanCity.includes(cleanStreetPart)) {
+          isMatch = true;
+        }
+
+        if (isMatch) {
+          const displayTitle = houseNum ? `${houseNum} ${item.street}` : item.street;
+          const displaySubtitle = `${item.district}, ${item.city}`;
+          const fullAddress = `${displayTitle}, ${displaySubtitle}`;
+
+          matchedItems.push({
+            title: displayTitle,
+            subtitle: displaySubtitle,
+            fullAddress: fullAddress,
+            houseNum: houseNum,
+            provId: item.provId,
+            lat: item.lat,
+            lng: item.lng
           });
-      }, 350);
+        }
+      });
+
+      // Limit results to top 6
+      matchedItems = matchedItems.slice(0, 6);
+
+      if (matchedItems.length > 0) {
+        renderSuggestions(matchedItems);
+      } else {
+        // Fallback to online Photon Geocoding API if local DB didn't match
+        searchDebounceTimer = setTimeout(() => {
+          fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(rawQuery)}&lat=10.7769&lon=106.7009&limit=5`)
+            .then(res => res.json())
+            .then(data => {
+              if (data && data.features && data.features.length > 0) {
+                const onlineResults = data.features.map(f => {
+                  const p = f.properties;
+                  const title = [p.housenumber, p.street || p.name].filter(Boolean).join(' ') || rawQuery;
+                  const subtitle = [p.district, p.city, p.state || 'Việt Nam'].filter(Boolean).join(', ');
+                  return {
+                    title: title,
+                    subtitle: subtitle,
+                    fullAddress: `${title}, ${subtitle}`,
+                    houseNum: p.housenumber || '',
+                    provId: 1,
+                    lat: f.geometry.coordinates[1],
+                    lng: f.geometry.coordinates[0]
+                  };
+                });
+                renderSuggestions(onlineResults);
+              } else {
+                suggestionsBox.style.display = 'none';
+              }
+            })
+            .catch(() => {
+              suggestionsBox.style.display = 'none';
+            });
+        }, 200);
+      }
     }
 
-    function selectSuggestion(lat, lng, displayName, idx) {
-      document.getElementById('wiz-address').value = displayName;
+    function renderSuggestions(items) {
+      const suggestionsBox = document.getElementById('address-suggestions');
+      if (!items || items.length === 0) {
+        suggestionsBox.style.display = 'none';
+        return;
+      }
+
+      suggestionsBox.innerHTML = items.map(item => `
+        <div class="autocomplete-item" onclick="selectSuggestion(${item.lat}, ${item.lng}, '${item.fullAddress.replace(/'/g, "\\'")}', ${item.provId})">
+          <i class="fa-solid fa-location-dot" style="font-size: 1.15rem; color: #64748b; margin-top: 2px;"></i>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-weight: 700; color: #0f172a; font-size: 0.93rem; line-height: 1.3;">
+              ${item.houseNum ? `<strong>${item.houseNum}</strong> ` : ''}${item.title.replace(item.houseNum || '', '').trim()}
+            </div>
+            <div style="color: #64748b; font-size: 0.8rem; line-height: 1.3; margin-top: 2px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+              ${item.subtitle}
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      suggestionsBox.style.display = 'block';
+    }
+
+    function selectSuggestion(lat, lng, fullAddress, provId) {
+      document.getElementById('wiz-address').value = fullAddress;
       document.getElementById('address-suggestions').style.display = 'none';
 
       document.getElementById('wiz-lat').value = parseFloat(lat).toFixed(6);
       document.getElementById('wiz-lng').value = parseFloat(lng).toFixed(6);
 
+      if (provId) {
+        document.getElementById('wiz-province').value = provId;
+      }
+
       if (proposeMap && proposeMarker) {
         proposeMarker.setLatLng([lat, lng]);
         proposeMap.flyTo([lat, lng], 16);
-      }
-
-      // Automatically match province from string
-      const provinces = TravelData.getProvinces();
-      const provSelect = document.getElementById('wiz-province');
-      for (const p of provinces) {
-        if (displayName.toLowerCase().includes(p.name.toLowerCase()) || displayName.toLowerCase().includes(p.name.replace('TP. ', '').toLowerCase())) {
-          provSelect.value = p.id;
-          break;
-        }
-      }
-    }
-
-    function autoMatchProvince(addressObj) {
-      if (!addressObj) return;
-      const state = (addressObj.state || addressObj.city || addressObj.province || '').toLowerCase();
-      const provinces = TravelData.getProvinces();
-      const provSelect = document.getElementById('wiz-province');
-      for (const p of provinces) {
-        const cleanName = p.name.toLowerCase().replace('tp. ', '').replace('tỉnh ', '');
-        if (state.includes(cleanName) || cleanName.includes(state)) {
-          provSelect.value = p.id;
-          break;
-        }
       }
     }
 
