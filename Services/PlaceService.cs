@@ -13,11 +13,20 @@ namespace MiniMap.Services
     {
         Task<List<PlaceDto>> SearchPlacesAsync(PlaceFilterDto filter);
         Task<PlaceDetailDto?> GetPlaceDetailAsync(long id, long? currentUserId = null);
-        Task<Place> ProposePlaceAsync(ProposePlaceDto dto, long userId);
+        Task<PlaceProposal> ProposePlaceAsync(ProposePlaceDto dto, long userId);
         Task<PlaceEditProposal> ProposeEditAsync(ProposeEditDto dto, long userId);
         Task RecalculatePlaceRatingAsync(long placeId);
         Task<List<PlaceDto>> GetTopRankedPlacesAsync(int? provinceId = null, int? regionId = null, int? placeTypeId = null, int limit = 10);
         Task RecordAccessHistoryAsync(long placeId, long userId);
+        Task<List<MyProposalDto>> GetUserProposalsAsync(long userId);
+        Task<bool> UpdateProposalAsync(long proposalId, ProposePlaceDto dto, long userId);
+        Task<bool> DeleteProposalAsync(long proposalId, long userId);
+        Task<PlaceProposal?> GetProposalDetailAsync(long id, long userId);
+        
+        Task<List<PlaceEditProposal>> GetUserEditProposalsAsync(long userId);
+        Task<bool> UpdateEditProposalAsync(long proposalId, ProposePlaceDto dto, long userId);
+        Task<bool> DeleteEditProposalAsync(long proposalId, long userId);
+        Task<PlaceEditProposal?> GetEditProposalDetailAsync(long id, long userId);
     }
 
     public class PlaceFilterDto
@@ -143,6 +152,21 @@ namespace MiniMap.Services
         public decimal? Longitude { get; set; }
         public int ProvinceId { get; set; }
         public int CategoryId { get; set; }
+        public List<string>? ImageUrls { get; set; }
+        public List<string>? VideoUrls { get; set; }
+    }
+
+    public class MyProposalDto
+    {
+        public long Id { get; set; }
+        public string ProposalType { get; set; } = "create"; // 'create','edit'
+        public string Name { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string Status { get; set; } = "pending";
+        public string? RejectReason { get; set; }
+        public DateTime SubmittedAt { get; set; }
+        public long? ApprovedPlaceId { get; set; }
+        public long? TargetPlaceId { get; set; }
     }
 
     public class PlaceService : IPlaceService
@@ -160,7 +184,7 @@ namespace MiniMap.Services
                 .Include(p => p.Province).ThenInclude(pr => pr!.Region)
                 .Include(p => p.Category).ThenInclude(c => c!.PlaceType)
                 .Include(p => p.Media)
-                .Where(p => p.Status == "approved")
+                .Where(p => p.Status == "active")
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filter.Keyword))
@@ -390,9 +414,9 @@ namespace MiniMap.Services
             };
         }
 
-        public async Task<Place> ProposePlaceAsync(ProposePlaceDto dto, long userId)
+        public async Task<PlaceProposal> ProposePlaceAsync(ProposePlaceDto dto, long userId)
         {
-            var place = new Place
+            var proposal = new PlaceProposal
             {
                 Name = dto.Name,
                 Description = dto.Description,
@@ -406,25 +430,21 @@ namespace MiniMap.Services
                 Longitude = dto.Longitude,
                 ProvinceId = dto.ProvinceId,
                 CategoryId = dto.CategoryId,
-                Source = "user_proposed",
                 ProposedBy = userId,
-                ProposedAt = DateTime.UtcNow,
-                Status = "pending",
-                AvgRating = 0,
-                ReviewCount = 0
+                SubmittedAt = DateTime.UtcNow,
+                Status = "pending"
             };
 
-            _db.Places.Add(place);
+            _db.PlaceProposals.Add(proposal);
             await _db.SaveChangesAsync();
 
             if (dto.ImageUrls != null)
             {
                 foreach (var img in dto.ImageUrls.Where(u => !string.IsNullOrWhiteSpace(u)))
                 {
-                    _db.PlaceMedia.Add(new PlaceMedia
+                    _db.ProposalMedia.Add(new ProposalMedia
                     {
-                        PlaceId = place.Id,
-                        UploadedBy = userId,
+                        ProposalId = proposal.Id,
                         MediaType = "image",
                         Url = img
                     });
@@ -435,10 +455,9 @@ namespace MiniMap.Services
             {
                 foreach (var vid in dto.VideoUrls.Where(u => !string.IsNullOrWhiteSpace(u)))
                 {
-                    _db.PlaceMedia.Add(new PlaceMedia
+                    _db.ProposalMedia.Add(new ProposalMedia
                     {
-                        PlaceId = place.Id,
-                        UploadedBy = userId,
+                        ProposalId = proposal.Id,
                         MediaType = "video",
                         Url = vid
                     });
@@ -446,22 +465,61 @@ namespace MiniMap.Services
             }
 
             await _db.SaveChangesAsync();
-            return place;
+            return proposal;
         }
 
         public async Task<PlaceEditProposal> ProposeEditAsync(ProposeEditDto dto, long userId)
         {
-            var json = JsonSerializer.Serialize(dto);
             var proposal = new PlaceEditProposal
             {
                 PlaceId = dto.PlaceId,
+                Name = dto.Name,
+                Description = dto.Description,
+                Address = dto.Address,
+                Phone = dto.Phone,
+                Website = dto.Website,
+                MinPrice = dto.MinPrice,
+                MaxPrice = dto.MaxPrice,
+                OpeningHours = dto.OpeningHours,
+                Latitude = dto.Latitude,
+                Longitude = dto.Longitude,
+                ProvinceId = dto.ProvinceId,
+                CategoryId = dto.CategoryId,
                 ProposedBy = userId,
-                ProposedData = json,
                 Status = "pending",
                 SubmittedAt = DateTime.UtcNow
             };
-
+ 
             _db.PlaceEditProposals.Add(proposal);
+            await _db.SaveChangesAsync();
+
+            // Save media for edit proposals
+            if (dto.ImageUrls != null)
+            {
+                foreach (var img in dto.ImageUrls.Where(u => !string.IsNullOrWhiteSpace(u)))
+                {
+                    _db.PlaceEditProposalMedia.Add(new PlaceEditProposalMedia
+                    {
+                        PlaceEditProposalId = proposal.Id,
+                        MediaType = "image",
+                        Url = img
+                    });
+                }
+            }
+
+            if (dto.VideoUrls != null)
+            {
+                foreach (var vid in dto.VideoUrls.Where(u => !string.IsNullOrWhiteSpace(u)))
+                {
+                    _db.PlaceEditProposalMedia.Add(new PlaceEditProposalMedia
+                    {
+                        PlaceEditProposalId = proposal.Id,
+                        MediaType = "video",
+                        Url = vid
+                    });
+                }
+            }
+
             await _db.SaveChangesAsync();
             return proposal;
         }
@@ -496,7 +554,7 @@ namespace MiniMap.Services
                 .Include(p => p.Province).ThenInclude(pr => pr!.Region)
                 .Include(p => p.Category).ThenInclude(c => c!.PlaceType)
                 .Include(p => p.Media)
-                .Where(p => p.Status == "approved")
+                .Where(p => p.Status == "active")
                 .AsQueryable();
 
             if (provinceId.HasValue && provinceId > 0)
@@ -561,6 +619,219 @@ namespace MiniMap.Services
                 });
             }
             await _db.SaveChangesAsync();
+        }
+
+        public async Task<List<MyProposalDto>> GetUserProposalsAsync(long userId)
+        {
+            var creations = await _db.PlaceProposals
+                .Where(p => p.ProposedBy == userId)
+                .Select(p => new MyProposalDto
+                {
+                    Id = p.Id,
+                    ProposalType = "create",
+                    Name = p.Name,
+                    Address = p.Address,
+                    Status = p.Status,
+                    RejectReason = p.RejectReason,
+                    SubmittedAt = p.SubmittedAt,
+                    ApprovedPlaceId = p.ApprovedPlaceId,
+                    TargetPlaceId = null
+                })
+                .ToListAsync();
+
+            var edits = await _db.PlaceEditProposals
+                .Where(p => p.ProposedBy == userId)
+                .Select(p => new MyProposalDto
+                {
+                    Id = p.Id,
+                    ProposalType = "edit",
+                    Name = p.Name,
+                    Address = p.Address,
+                    Status = p.Status,
+                    RejectReason = p.RejectReason,
+                    SubmittedAt = p.SubmittedAt,
+                    ApprovedPlaceId = null,
+                    TargetPlaceId = p.PlaceId
+                })
+                .ToListAsync();
+
+            var combined = creations.Concat(edits)
+                .OrderByDescending(p => p.SubmittedAt)
+                .ToList();
+
+            return combined;
+        }
+
+        public async Task<bool> UpdateProposalAsync(long proposalId, ProposePlaceDto dto, long userId)
+        {
+            var proposal = await _db.PlaceProposals
+                .Include(p => p.Media)
+                .FirstOrDefaultAsync(p => p.Id == proposalId && p.ProposedBy == userId);
+            
+            if (proposal == null) return false;
+            if (proposal.Status != "pending" && proposal.Status != "rejected") return false;
+
+            // Update details
+            proposal.Name = dto.Name;
+            proposal.Description = dto.Description;
+            proposal.Address = dto.Address;
+            proposal.Phone = dto.Phone;
+            proposal.Website = dto.Website;
+            proposal.MinPrice = dto.MinPrice;
+            proposal.MaxPrice = dto.MaxPrice;
+            proposal.OpeningHours = dto.OpeningHours;
+            proposal.Latitude = dto.Latitude;
+            proposal.Longitude = dto.Longitude;
+            proposal.ProvinceId = dto.ProvinceId;
+            proposal.CategoryId = dto.CategoryId;
+            
+            // If it was rejected, resubmitting turns status back to pending
+            proposal.Status = "pending";
+            proposal.RejectReason = null;
+            proposal.SubmittedAt = DateTime.UtcNow;
+
+            // Remove old media
+            _db.ProposalMedia.RemoveRange(proposal.Media);
+
+            // Add new media
+            if (dto.ImageUrls != null)
+            {
+                foreach (var img in dto.ImageUrls.Where(u => !string.IsNullOrWhiteSpace(u)))
+                {
+                    _db.ProposalMedia.Add(new ProposalMedia
+                    {
+                        ProposalId = proposal.Id,
+                        MediaType = "image",
+                        Url = img
+                    });
+                }
+            }
+
+            if (dto.VideoUrls != null)
+            {
+                foreach (var vid in dto.VideoUrls.Where(u => !string.IsNullOrWhiteSpace(u)))
+                {
+                    _db.ProposalMedia.Add(new ProposalMedia
+                    {
+                        ProposalId = proposal.Id,
+                        MediaType = "video",
+                        Url = vid
+                    });
+                }
+            }
+
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteProposalAsync(long proposalId, long userId)
+        {
+            var proposal = await _db.PlaceProposals
+                .FirstOrDefaultAsync(p => p.Id == proposalId && p.ProposedBy == userId);
+
+            if (proposal == null) return false;
+            // Only allow deleting pending or rejected proposals
+            if (proposal.Status != "pending" && proposal.Status != "rejected") return false;
+
+            _db.PlaceProposals.Remove(proposal);
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<PlaceProposal?> GetProposalDetailAsync(long id, long userId)
+        {
+            return await _db.PlaceProposals
+                .Include(p => p.Media)
+                .FirstOrDefaultAsync(p => p.Id == id && p.ProposedBy == userId);
+        }
+
+        public async Task<List<PlaceEditProposal>> GetUserEditProposalsAsync(long userId)
+        {
+            return await _db.PlaceEditProposals
+                .Include(p => p.Media)
+                .Include(p => p.Place)
+                .Where(p => p.ProposedBy == userId)
+                .OrderByDescending(p => p.SubmittedAt)
+                .ToListAsync();
+        }
+
+        public async Task<bool> UpdateEditProposalAsync(long proposalId, ProposePlaceDto dto, long userId)
+        {
+            var proposal = await _db.PlaceEditProposals
+                .Include(p => p.Media)
+                .FirstOrDefaultAsync(p => p.Id == proposalId && p.ProposedBy == userId);
+
+            if (proposal == null) return false;
+            if (proposal.Status != "pending" && proposal.Status != "rejected") return false;
+
+            proposal.Name = dto.Name;
+            proposal.Description = dto.Description;
+            proposal.Address = dto.Address;
+            proposal.Phone = dto.Phone;
+            proposal.Website = dto.Website;
+            proposal.MinPrice = dto.MinPrice;
+            proposal.MaxPrice = dto.MaxPrice;
+            proposal.OpeningHours = dto.OpeningHours;
+            proposal.Latitude = dto.Latitude;
+            proposal.Longitude = dto.Longitude;
+            proposal.ProvinceId = dto.ProvinceId;
+            proposal.CategoryId = dto.CategoryId;
+
+            proposal.Status = "pending";
+            proposal.RejectReason = null;
+            proposal.SubmittedAt = DateTime.UtcNow;
+
+            _db.PlaceEditProposalMedia.RemoveRange(proposal.Media);
+
+            if (dto.ImageUrls != null)
+            {
+                foreach (var img in dto.ImageUrls.Where(u => !string.IsNullOrWhiteSpace(u)))
+                {
+                    _db.PlaceEditProposalMedia.Add(new PlaceEditProposalMedia
+                    {
+                        PlaceEditProposalId = proposal.Id,
+                        MediaType = "image",
+                        Url = img
+                    });
+                }
+            }
+
+            if (dto.VideoUrls != null)
+            {
+                foreach (var vid in dto.VideoUrls.Where(u => !string.IsNullOrWhiteSpace(u)))
+                {
+                    _db.PlaceEditProposalMedia.Add(new PlaceEditProposalMedia
+                    {
+                        PlaceEditProposalId = proposal.Id,
+                        MediaType = "video",
+                        Url = vid
+                    });
+                }
+            }
+
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteEditProposalAsync(long proposalId, long userId)
+        {
+            var proposal = await _db.PlaceEditProposals
+                .FirstOrDefaultAsync(p => p.Id == proposalId && p.ProposedBy == userId);
+
+            if (proposal == null) return false;
+            if (proposal.Status != "pending" && proposal.Status != "rejected") return false;
+
+            _db.PlaceEditProposals.Remove(proposal);
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<PlaceEditProposal?> GetEditProposalDetailAsync(long id, long userId)
+        {
+            return await _db.PlaceEditProposals
+                .Include(p => p.Media)
+                .Include(p => p.Place)
+                .FirstOrDefaultAsync(p => p.Id == id && p.ProposedBy == userId);
         }
     }
 }

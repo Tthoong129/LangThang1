@@ -23,6 +23,13 @@ namespace MiniMap.Controllers.Api
             return Ok(places);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetPlaces([FromQuery] PlaceFilterDto filter)
+        {
+            var places = await _placeService.SearchPlacesAsync(filter);
+            return Ok(places);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetDetail(long id, [FromQuery] long? currentUserId = null)
         {
@@ -55,6 +62,64 @@ namespace MiniMap.Controllers.Api
             if (userId <= 0) return Unauthorized(new { message = "Vui lòng đăng nhập để đề xuất chỉnh sửa." });
             var proposal = await _placeService.ProposeEditAsync(dto, userId);
             return Ok(new { message = "Đã gửi đề xuất chỉnh sửa thành công, vui lòng chờ kiểm duyệt.", proposalId = proposal.Id });
+        }
+
+        [HttpGet("my-proposals")]
+        public async Task<IActionResult> GetMyProposals([FromQuery] long userId)
+        {
+            if (userId <= 0) return Unauthorized(new { message = "Vui lòng đăng nhập." });
+            var list = await _placeService.GetUserProposalsAsync(userId);
+            return Ok(list);
+        }
+
+        [HttpGet("proposals/{id}")]
+        public async Task<IActionResult> GetProposalDetail(long id, [FromQuery] long userId, [FromQuery] string type = "create")
+        {
+            if (userId <= 0) return Unauthorized(new { message = "Vui lòng đăng nhập." });
+            if (type == "edit")
+            {
+                var proposal = await _placeService.GetEditProposalDetailAsync(id, userId);
+                if (proposal == null) return NotFound(new { message = "Đề xuất không tồn tại hoặc bạn không có quyền xem." });
+                return Ok(proposal);
+            }
+            else
+            {
+                var proposal = await _placeService.GetProposalDetailAsync(id, userId);
+                if (proposal == null) return NotFound(new { message = "Đề xuất không tồn tại hoặc bạn không có quyền xem." });
+                return Ok(proposal);
+            }
+        }
+
+        [HttpPut("proposals/{id}")]
+        public async Task<IActionResult> UpdateProposal(long id, [FromBody] ProposePlaceDto dto, [FromQuery] long userId, [FromQuery] string type = "create")
+        {
+            if (userId <= 0) return Unauthorized(new { message = "Vui lòng đăng nhập." });
+            bool success = false;
+            if (type == "edit")
+            {
+                success = await _placeService.UpdateEditProposalAsync(id, dto, userId);
+            }
+            else
+            {
+                success = await _placeService.UpdateProposalAsync(id, dto, userId);
+            }
+            return success ? Ok(new { message = "Cập nhật đề xuất thành công." }) : BadRequest(new { message = "Không thể cập nhật đề xuất (chỉ cập nhật đề xuất đang chờ duyệt hoặc bị từ chối)." });
+        }
+
+        [HttpDelete("proposals/{id}")]
+        public async Task<IActionResult> DeleteProposal(long id, [FromQuery] long userId, [FromQuery] string type = "create")
+        {
+            if (userId <= 0) return Unauthorized(new { message = "Vui lòng đăng nhập." });
+            bool success = false;
+            if (type == "edit")
+            {
+                success = await _placeService.DeleteEditProposalAsync(id, userId);
+            }
+            else
+            {
+                success = await _placeService.DeleteProposalAsync(id, userId);
+            }
+            return success ? Ok(new { message = "Xóa đề xuất thành công." }) : BadRequest(new { message = "Không thể xóa đề xuất." });
         }
 
         [HttpGet("rankings")]

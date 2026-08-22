@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đóng Góp Của Tôi — Lang Thang</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+
+  <style>
+    body {
+      background: #fbf9f6;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .my-proposals-container {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 24px 16px 80px;
+    }
+    .section-title-area {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .proposals-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .proposal-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color, #e5e7eb);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .proposal-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+    .proposal-main {
+      flex: 1;
+    }
+    .proposal-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .badge-type {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: var(--radius-full, 999px);
+      text-transform: uppercase;
+    }
+    .badge-create {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    .badge-edit {
+      background: #fef3c7;
+      color: #b45309;
+    }
+    .proposal-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-main, #1e293b);
+      margin: 0 0 6px 0;
+    }
+    .proposal-address {
+      font-size: 0.88rem;
+      color: var(--text-muted, #64748b);
+      margin-bottom: 10px;
+    }
+    .proposal-date {
+      font-size: 0.8rem;
+      color: var(--text-light, #94a3b8);
+    }
+    .proposal-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+    }
+    .badge-status {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: var(--radius-lg, 8px);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-pending {
+      background: #fff7ed;
+      color: #ea580c;
+    }
+    .status-approved {
+      background: #f0fdf4;
+      color: #16a34a;
+    }
+    .status-rejected {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+    .reject-reason-box {
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: #fff5f5;
+      border-left: 3px solid #f87171;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      color: #b91c1c;
+    }
+    .btn-action-group {
+      display: flex;
+      gap: 8px;
+    }
+    .empty-state {
+      background: #ffffff;
+      border: 1px solid var(--border-color, #e5e7eb);
+      border-radius: 20px;
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--text-muted, #64748b);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header" id="site-header-mount"></header>
+
+  <main class="main-content">
+    <div class="my-proposals-container">
+      
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" style="display:flex; align-items:center; gap:8px; font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
+        <a href="../index.html">Trang chủ</a> <i class="fa-solid fa-chevron-right" style="font-size:0.65rem;"></i>
+        <span>Đóng góp của tôi</span>
+      </nav>
+
+      <!-- Section Title Area -->
+      <div class="section-title-area">
+        <div>
+          <h1 style="font-family: 'Fraunces', serif; font-size: 2.1rem; font-weight: 700; color: var(--text-main, #1e293b); margin: 0 0 6px 0;">
+            Đề xuất & Đóng góp của bạn
+          </h1>
+          <p style="color: var(--text-muted); margin: 0; font-size: 0.95rem;">
+            Theo dõi, chỉnh sửa hoặc hủy các đề xuất tạo mới và chỉnh sửa địa điểm của bạn.
+          </p>
+        </div>
+        <a href="propose-place.html" class="btn btn-primary" style="font-weight: 700;">
+          <i class="fa-solid fa-plus" style="margin-right: 6px;"></i> Thêm địa điểm mới
+        </a>
+      </div>
+
+      <!-- Proposals List -->
+      <div id="proposalsListArea" class="proposals-list">
+        <div class="empty-state">
+          <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2rem; color: var(--primary); margin-bottom: 12px;"></i>
+          <p>Đang tải danh sách đề xuất của bạn...</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer" id="site-footer-mount"></footer>
+
+  <!-- Scripts -->
+  <script src="../js/data.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      document.getElementById('site-header-mount').innerHTML = UI.renderHeader('my-proposals');
+      document.getElementById('site-footer-mount').innerHTML = UI.renderFooter();
+
+      await loadUserProposals();
+    });
+
+    async function loadUserProposals() {
+      const user = api.getCurrentUser();
+      const listArea = document.getElementById('proposalsListArea');
+
+      if (!user) {
+        listArea.innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-lock" style="font-size: 2.5rem; margin-bottom: 14px; color: #94a3b8;"></i>
+            <p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 8px;">Vui lòng đăng nhập</p>
+            <p style="font-size: 0.9rem; margin-bottom: 16px;">Bạn cần đăng nhập tài khoản đóng góp để quản lý đề xuất.</p>
+            <a href="login.html" class="btn btn-primary btn-sm">Đăng nhập ngay</a>
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        const proposals = await api.request(`/Places/my-proposals?userId=${user.id}`);
+        
+        if (!proposals || proposals.length === 0) {
+          listArea.innerHTML = `
+            <div class="empty-state">
+              <i class="fa-regular fa-folder-open" style="font-size: 2.5rem; margin-bottom: 14px; color: #94a3b8;"></i>
+              <p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 8px;">Chưa có đề xuất nào</p>
+              <p style="font-size: 0.9rem; margin-bottom: 16px;">Bạn chưa đóng góp hay đề xuất địa điểm nào trên Lang Thang.</p>
+              <a href="propose-place.html" class="btn btn-primary btn-sm">Đóng góp địa điểm đầu tiên</a>
+            </div>
+          `;
+          return;
+        }
+
+        let html = '';
+        proposals.forEach(p => {
+          const typeBadge = p.proposalType === 'create' 
+            ? `<span class="badge-type badge-create"><i class="fa-solid fa-plus-circle"></i> Tạo mới</span>`
+            : `<span class="badge-type badge-edit"><i class="fa-solid fa-pen-to-square"></i> Chỉnh sửa</span>`;
+
+          let statusClass = 'status-pending';
+          let statusText = 'Chờ kiểm duyệt';
+          if (p.status === 'approved') {
+            statusClass = 'status-approved';
+            statusText = 'Đã duyệt';
+          } else if (p.status === 'rejected') {
+            statusClass = 'status-rejected';
+            statusText = 'Bị từ chối';
+          }
+
+          const formattedDate = new Date(p.submittedAt).toLocaleDateString('vi-VN', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+
+          // Action buttons logic
+          let actionHtml = '';
+          if (p.status === 'pending' || p.status === 'rejected') {
+            actionHtml = `
+              <div class="btn-action-group">
+                <a href="propose-place.html?editProposalId=${p.id}&type=${p.proposalType}" class="btn btn-sm btn-outline" style="font-weight:700;">
+                  <i class="fa-regular fa-pen-to-square"></i> Sửa
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-rose" onclick="deleteProposal(${p.id}, '${p.proposalType}')" style="font-weight:700; border-color:#fca5a5; color:#dc2626;">
+                  <i class="fa-regular fa-trash-can"></i> Hủy
+                </button>
+              </div>
+            `;
+          } else if (p.status === 'approved') {
+            const targetId = p.approvedPlaceId || p.targetPlaceId;
+            if (targetId) {
+              actionHtml = `
+                <a href="place-detail.html?id=${targetId}" class="btn btn-sm btn-outline" style="font-weight:700; color:var(--primary); border-color:var(--primary-200);">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Xem địa điểm
+                </a>
+              `;
+            }
+          }
+
+          const rejectReasonHtml = (p.status === 'rejected' && p.rejectReason)
+            ? `<div class="reject-reason-box">
+                <strong><i class="fa-solid fa-circle-info"></i> Lý do từ chối:</strong> ${p.rejectReason}
+               </div>`
+            : '';
+
+          html += `
+            <div class="proposal-card" id="proposal-card-${p.id}">
+              <div class="proposal-main">
+                <div class="proposal-meta">
+                  ${typeBadge}
+                  <span class="proposal-date"><i class="fa-regular fa-clock"></i> ${formattedDate}</span>
+                </div>
+                <h3 class="proposal-title">${p.name}</h3>
+                <div class="proposal-address"><i class="fa-solid fa-location-dot"></i> ${p.address}</div>
+                ${rejectReasonHtml}
+              </div>
+              <div class="proposal-actions">
+                <span class="badge-status ${statusClass}">
+                  <i class="fa-solid ${p.status === 'approved' ? 'fa-circle-check' : (p.status === 'rejected' ? 'fa-circle-xmark' : 'fa-spinner fa-spin')}"></i>
+                  ${statusText}
+                </span>
+                ${actionHtml}
+              </div>
+            </div>
+          `;
+        });
+
+        listArea.innerHTML = html;
+
+      } catch (err) {
+        console.error(err);
+        listArea.innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.5rem; margin-bottom: 14px; color: #ef4444;"></i>
+            <p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 8px;">Đã xảy ra lỗi</p>
+            <p style="font-size: 0.9rem; margin-bottom: 16px;">Không thể tải danh sách đề xuất của bạn. Vui lòng thử lại sau.</p>
+            <button onclick="loadUserProposals()" class="btn btn-outline btn-sm">Tải lại</button>
+          </div>
+        `;
+      }
+    }
+
+    async function deleteProposal(id, type) {
+      if (!confirm('Bạn có chắc chắn muốn hủy và xóa đề xuất địa điểm này? Hành động này không thể hoàn tác.')) {
+        return;
+      }
+
+      const user = api.getCurrentUser();
+      if (!user) return;
+
+      try {
+        const res = await api.request(`/Places/proposals/${id}?userId=${user.id}&type=${type}`, {
+          method: 'DELETE'
+        });
+
+        UI.showToast(res.message || 'Đã hủy đề xuất thành công.', 'success');
+        
+        // Remove from UI
+        const card = document.getElementById(`proposal-card-${id}`);
+        if (card) {
+          card.style.opacity = '0';
+          card.style.transform = 'scale(0.95)';
+          setTimeout(() => {
+            card.remove();
+            // If list empty, reload
+            const cards = document.querySelectorAll('.proposal-card');
+            if (cards.length === 0) {
+              loadUserProposals();
+            }
+          }, 300);
+        }
+      } catch (err) {
+        UI.showToast(err.message || 'Không thể xóa đề xuất.', 'danger');
+      }
+    }
+  </script>
+</body>
+</html>

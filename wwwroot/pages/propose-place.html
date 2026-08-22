@@ -407,12 +407,14 @@
     let proposeMarker = null;
     let searchDebounceTimer = null;
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('site-header-mount').innerHTML = UI.renderHeader('propose');
       document.getElementById('site-footer-mount').innerHTML = UI.renderFooter();
 
       initWizardOptions();
       updateWizardCategories(1); // Default to Ăn uống
+
+      await checkAndLoadEditProposal();
 
       // Close autocomplete on click outside
       document.addEventListener('click', (e) => {
@@ -421,6 +423,69 @@
         }
       });
     });
+
+    async function checkAndLoadEditProposal() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const editProposalId = urlParams.get('editProposalId');
+      const type = urlParams.get('type') || 'create';
+      if (!editProposalId) return;
+
+      const user = api.getCurrentUser();
+      if (!user) return;
+
+      // Change title
+      const mainHeader = document.querySelector('main h1') || document.querySelector('h1');
+      if (mainHeader) mainHeader.innerText = 'Chỉnh Sửa Đề Xuất Địa Điểm';
+      document.title = 'Chỉnh Sửa Đề Xuất — Lang Thang';
+
+      try {
+        const prop = await api.request(`/Places/proposals/${editProposalId}?userId=${user.id}&type=${type}`);
+        if (prop) {
+          document.getElementById('wiz-name').value = prop.name || '';
+          
+          const categories = TravelData.getCategories();
+          const category = categories.find(c => c.id === prop.categoryId);
+          const typeId = category ? category.placeTypeId : 1;
+          
+          document.getElementById('wiz-type').value = typeId;
+          updateWizardCategories(typeId);
+          document.getElementById('wiz-category').value = prop.categoryId;
+          
+          document.getElementById('wiz-province').value = prop.provinceId;
+          document.getElementById('wiz-address').value = prop.address || '';
+          document.getElementById('wiz-phone').value = prop.phone || '';
+          document.getElementById('wiz-website').value = prop.website || '';
+          document.getElementById('wiz-min-price').value = prop.minPrice || '';
+          document.getElementById('wiz-max-price').value = prop.maxPrice || '';
+          document.getElementById('wiz-hours').value = prop.openingHours || '';
+          document.getElementById('wiz-desc').value = prop.description || '';
+          document.getElementById('wiz-lat').value = prop.latitude || '';
+          document.getElementById('wiz-lng').value = prop.longitude || '';
+          
+          // Media
+          if (prop.media && prop.media.length > 0) {
+            const firstImg = prop.media.find(m => m.mediaType === 'image');
+            if (firstImg) {
+              document.getElementById('wiz-img-url').value = firstImg.url;
+            }
+          }
+          
+          // Re-init map marker
+          if (prop.latitude && prop.longitude) {
+            setTimeout(() => {
+              if (proposeMarker && proposeMap) {
+                const pos = [prop.latitude, prop.longitude];
+                proposeMarker.setLatLng(pos);
+                proposeMap.setView(pos, 15);
+              }
+            }, 500);
+          }
+        }
+      } catch (err) {
+        console.error('Lỗi khi tải thông tin đề xuất:', err);
+        UI.showToast('Không thể tải thông tin đề xuất để chỉnh sửa.', 'danger');
+      }
+    }
 
     function initWizardOptions() {
       const provSelect = document.getElementById('wiz-province');
@@ -951,29 +1016,48 @@
         status: 'pending'
       };
 
+      const urlParams = new URLSearchParams(window.location.search);
+      const editProposalId = urlParams.get('editProposalId');
+      const type = urlParams.get('type') || 'create';
+
       try {
-        // Send to backend C# API
-        await api.request(`/Places/propose?userId=${user.id}`, {
-          method: 'POST',
-          body: JSON.stringify(dto)
-        });
+        if (editProposalId) {
+          // Edit resubmission PUT
+          await api.request(`/Places/proposals/${editProposalId}?userId=${user.id}&type=${type}`, {
+            method: 'PUT',
+            body: JSON.stringify(dto)
+          });
+          UI.showToast('Đề xuất đã được cập nhật thành công!', 'success');
+          setTimeout(() => {
+            window.location.href = 'my-proposals.html';
+          }, 1500);
+        } else {
+          // New propose POST
+          await api.request(`/Places/propose?userId=${user.id}`, {
+            method: 'POST',
+            body: JSON.stringify(dto)
+          });
+
+          // Save locally to TravelData so it appears in Admin pending queue (local fallback)
+          TravelData.savePlace({
+            id: Date.now(),
+            ...dto,
+            status: 'pending',
+            proposerName: user.fullName || 'Người dùng',
+            proposedAt: new Date().toISOString()
+          });
+
+          UI.showToast('Đề xuất địa điểm đã được gửi thành công! Đang chờ kiểm duyệt.', 'success');
+          setTimeout(() => {
+            window.location.href = '../index.html';
+          }, 1500);
+        }
       } catch (err) {
-        console.warn('Backend propose place fallback:', err.message);
+        console.error(err);
+        UI.showToast(err.message || 'Có lỗi xảy ra khi gửi đề xuất.', 'danger');
+        btn.innerHTML = 'Xác nhận & Gửi <i class="fa-solid fa-paper-plane"></i>';
+        btn.disabled = false;
       }
-
-      // Save locally to TravelData so it appears in Admin pending queue
-      TravelData.savePlace({
-        id: Date.now(),
-        ...dto,
-        status: 'pending',
-        proposerName: user.fullName || 'Người dùng',
-        proposedAt: new Date().toISOString()
-      });
-
-      UI.showToast('Đề xuất địa điểm đã được gửi thành công! Đang chờ kiểm duyệt.', 'success');
-      setTimeout(() => {
-        window.location.href = '../index.html';
-      }, 1500);
     }
   </script>
 </body>

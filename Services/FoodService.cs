@@ -95,7 +95,7 @@ namespace MiniMap.Services
                 ImageUrl = f.ImageUrl,
                 Provinces = f.FoodProvinces.Select(fp => fp.Province?.Name ?? "").ToList(),
                 PlaceCount = f.FoodPlaces.Count,
-                PlacesServing = f.FoodPlaces.Where(fp => fp.Place != null && fp.Place.Status == "approved").Select(fp => new PlaceDto
+                PlacesServing = f.FoodPlaces.Where(fp => fp.Place != null && fp.Place.Status == "active").Select(fp => new PlaceDto
                 {
                     Id = fp.Place!.Id,
                     Name = fp.Place.Name,
