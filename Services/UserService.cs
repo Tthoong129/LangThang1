@@ -311,7 +311,7 @@ namespace MiniMap.Services
                 .Include(f => f.Place).ThenInclude(p => p!.Province)
                 .Include(f => f.Place).ThenInclude(p => p!.Category).ThenInclude(c => c!.PlaceType)
                 .Include(f => f.Place).ThenInclude(p => p!.Media)
-                .Where(f => f.UserId == userId && f.Place != null && f.Place.Status == "approved")
+                .Where(f => f.UserId == userId && f.Place != null && f.Place.Status == "active")
                 .OrderByDescending(f => f.CreatedAt)
                 .ToListAsync();
 
@@ -401,7 +401,7 @@ namespace MiniMap.Services
         {
             var histories = await _db.AccessHistories
                 .Include(h => h.Place).ThenInclude(p => p!.Media)
-                .Where(h => h.UserId == userId && h.Place != null && h.Place.Status == "approved")
+                .Where(h => h.UserId == userId && h.Place != null && h.Place.Status == "active")
                 .OrderByDescending(h => h.ViewedAt)
                 .Take(30)
                 .ToListAsync();

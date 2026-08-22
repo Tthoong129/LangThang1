@@ -134,14 +134,17 @@ namespace MiniMap.Models
         public Category? Category { get; set; }
 
         [Required, MaxLength(30)]
-        public string Source { get; set; } = "admin_created"; // 'user_proposed','admin_created'
+        public string Source { get; set; } = "admin_created"; // 'admin_created','user_proposed'
+
         public long? ProposedBy { get; set; }
         public User? Proposer { get; set; }
 
         [Required, MaxLength(20)]
-        public string Status { get; set; } = "approved"; // 'pending','approved','rejected','hidden'
+        public string Status { get; set; } = "active"; // 'pending','approved','rejected','hidden'
+
         [MaxLength(500)]
         public string? RejectReason { get; set; }
+
         public long? ApprovedBy { get; set; }
         public User? Approver { get; set; }
 
@@ -176,6 +179,7 @@ namespace MiniMap.Models
         public string MediaType { get; set; } = "image"; // 'image','video'
         [Required, MaxLength(500)]
         public string Url { get; set; } = string.Empty;
+        public int DisplayOrder { get; set; } = 0;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 
@@ -183,18 +187,23 @@ namespace MiniMap.Models
     {
         [Key]
         public long Id { get; set; }
+        
         public long PlaceId { get; set; }
         public Place? Place { get; set; }
+        
         public long ProposedBy { get; set; }
         public User? Proposer { get; set; }
+ 
         [Required]
         public string ProposedData { get; set; } = string.Empty; // JSON string
+ 
         [Required, MaxLength(20)]
         public string Status { get; set; } = "pending"; // 'pending','approved','rejected'
         [MaxLength(500)]
         public string? RejectReason { get; set; }
         public long? ReviewedBy { get; set; }
         public User? Reviewer { get; set; }
+        
         public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
         public DateTime? ReviewedAt { get; set; }
     }
@@ -351,7 +360,7 @@ namespace MiniMap.Models
         public long UserId { get; set; }
         public User? User { get; set; }
         [Required, MaxLength(30)]
-        public string TargetType { get; set; } = string.Empty; // 'place','review','comment','place_edit_proposal'
+        public string TargetType { get; set; } = string.Empty; // 'place','review','comment','place_proposal'
         public long TargetId { get; set; }
         [Required]
         public string Reason { get; set; } = string.Empty;

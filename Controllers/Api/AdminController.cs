@@ -24,48 +24,26 @@ namespace MiniMap.Controllers.Api
             return Ok(stats);
         }
 
-        // Pending places
-        [HttpGet("pending-places")]
-        public async Task<IActionResult> GetPendingPlaces([FromQuery] long adminUserId, [FromQuery] bool isSystemAdmin = false)
+        // Pending proposals
+        [HttpGet("pending-proposals")]
+        public async Task<IActionResult> GetPendingProposals([FromQuery] long adminUserId, [FromQuery] bool isSystemAdmin = false)
         {
-            var list = await _adminService.GetPendingPlacesForAdminAsync(adminUserId, isSystemAdmin);
+            var list = await _adminService.GetPendingProposalsAsync(adminUserId, isSystemAdmin);
             return Ok(list);
         }
 
-        [HttpPost("places/{id}/approve")]
-        public async Task<IActionResult> ApprovePlace(long id, [FromQuery] long adminUserId)
+        [HttpPost("proposals/{id}/approve")]
+        public async Task<IActionResult> ApproveProposal(long id, [FromQuery] string type, [FromQuery] long adminUserId)
         {
-            var success = await _adminService.ApprovePlaceAsync(id, adminUserId);
-            return success ? Ok(new { message = "Đã duyệt địa điểm thành công." }) : BadRequest();
+            var success = await _adminService.ApproveProposalAsync(id, type, adminUserId);
+            return success ? Ok(new { message = "Đã duyệt đề xuất thành công." }) : BadRequest();
         }
 
-        [HttpPost("places/{id}/reject")]
-        public async Task<IActionResult> RejectPlace(long id, [FromBody] RejectRequest req, [FromQuery] long adminUserId)
+        [HttpPost("proposals/{id}/reject")]
+        public async Task<IActionResult> RejectProposal(long id, [FromBody] RejectRequest req, [FromQuery] string type, [FromQuery] long adminUserId)
         {
-            var success = await _adminService.RejectPlaceAsync(id, adminUserId, req.Reason);
-            return success ? Ok(new { message = "Đã từ chối địa điểm." }) : BadRequest();
-        }
-
-        // Edit proposals
-        [HttpGet("pending-edits")]
-        public async Task<IActionResult> GetPendingEdits([FromQuery] long adminUserId, [FromQuery] bool isSystemAdmin = false)
-        {
-            var list = await _adminService.GetPendingEditProposalsAsync(adminUserId, isSystemAdmin);
-            return Ok(list);
-        }
-
-        [HttpPost("edits/{id}/approve")]
-        public async Task<IActionResult> ApproveEdit(long id, [FromQuery] long adminUserId)
-        {
-            var success = await _adminService.ApproveEditProposalAsync(id, adminUserId);
-            return success ? Ok(new { message = "Đã chấp nhận và cập nhật thông tin địa điểm." }) : BadRequest();
-        }
-
-        [HttpPost("edits/{id}/reject")]
-        public async Task<IActionResult> RejectEdit(long id, [FromBody] RejectRequest req, [FromQuery] long adminUserId)
-        {
-            var success = await _adminService.RejectEditProposalAsync(id, adminUserId, req.Reason);
-            return success ? Ok(new { message = "Đã từ chối đề xuất chỉnh sửa." }) : BadRequest();
+            var success = await _adminService.RejectProposalAsync(id, type, adminUserId, req.Reason);
+            return success ? Ok(new { message = "Đã từ chối đề xuất." }) : BadRequest();
         }
 
         // Reports

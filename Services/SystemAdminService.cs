@@ -102,8 +102,8 @@ namespace MiniMap.Services
             {
                 TotalUsers = await _db.Users.CountAsync(),
                 TotalCategoryAdmins = await _db.Users.CountAsync(u => u.Role == "category_admin"),
-                TotalPlaces = await _db.Places.CountAsync(p => p.Status == "approved"),
-                PendingPlaces = await _db.Places.CountAsync(p => p.Status == "pending"),
+                TotalPlaces = await _db.Places.CountAsync(p => p.Status == "active"),
+                PendingPlaces = await _db.PlaceProposals.CountAsync(p => p.Status == "pending"),
                 VisibleReviews = await _db.Reviews.CountAsync(r => r.Status == "visible"),
                 VisibleComments = await _db.Comments.CountAsync(c => c.Status == "visible"),
                 PendingReports = await _db.Reports.CountAsync(r => r.Status == "pending"),

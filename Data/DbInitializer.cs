@@ -186,11 +186,9 @@ namespace MiniMap.Data
                 Longitude = 105.8569850m,
                 ProvinceId = hanoi.Id,
                 CategoryId = catRestaurant.Id,
-                Source = "admin_created",
-                Status = "approved",
+                Status = "active",
                 AvgRating = 4.8m,
-                ReviewCount = 24,
-                ApprovedAt = DateTime.UtcNow
+                ReviewCount = 24
             };
 
             var p2 = new Place
@@ -206,11 +204,9 @@ namespace MiniMap.Data
                 Longitude = 105.8543410m,
                 ProvinceId = hanoi.Id,
                 CategoryId = catCafe.Id,
-                Source = "admin_created",
-                Status = "approved",
+                Status = "active",
                 AvgRating = 4.9m,
-                ReviewCount = 45,
-                ApprovedAt = DateTime.UtcNow
+                ReviewCount = 45
             };
 
             var p3 = new Place
@@ -227,11 +223,9 @@ namespace MiniMap.Data
                 Longitude = 107.9866120m,
                 ProvinceId = danang.Id,
                 CategoryId = catThemePark.Id,
-                Source = "admin_created",
-                Status = "approved",
+                Status = "active",
                 AvgRating = 4.9m,
-                ReviewCount = 88,
-                ApprovedAt = DateTime.UtcNow
+                ReviewCount = 88
             };
 
             var p4 = new Place
@@ -248,11 +242,9 @@ namespace MiniMap.Data
                 Longitude = 108.3101560m,
                 ProvinceId = danang.Id,
                 CategoryId = catResort.Id,
-                Source = "admin_created",
-                Status = "approved",
+                Status = "active",
                 AvgRating = 5.0m,
-                ReviewCount = 32,
-                ApprovedAt = DateTime.UtcNow
+                ReviewCount = 65
             };
 
             var p5 = new Place
@@ -268,11 +260,9 @@ namespace MiniMap.Data
                 Longitude = 106.7052980m,
                 ProvinceId = hcm.Id,
                 CategoryId = catRestaurant.Id,
-                Source = "admin_created",
-                Status = "approved",
+                Status = "active",
                 AvgRating = 4.7m,
-                ReviewCount = 19,
-                ApprovedAt = DateTime.UtcNow
+                ReviewCount = 19
             };
 
             var p6 = new Place
@@ -285,11 +275,9 @@ namespace MiniMap.Data
                 Longitude = 104.0326550m,
                 ProvinceId = phuquoc.Id,
                 CategoryId = catBeach.Id,
-                Source = "admin_created",
-                Status = "approved",
+                Status = "active",
                 AvgRating = 4.8m,
-                ReviewCount = 52,
-                ApprovedAt = DateTime.UtcNow
+                ReviewCount = 52
             };
 
             var p7 = new Place
@@ -305,11 +293,9 @@ namespace MiniMap.Data
                 Longitude = 108.3512300m,
                 ProvinceId = dalat.Id,
                 CategoryId = catCafe.Id,
-                Source = "admin_created",
-                Status = "approved",
+                Status = "active",
                 AvgRating = 4.6m,
-                ReviewCount = 28,
-                ApprovedAt = DateTime.UtcNow
+                ReviewCount = 28
             };
 
             context.Places.AddRange(p1, p2, p3, p4, p5, p6, p7);

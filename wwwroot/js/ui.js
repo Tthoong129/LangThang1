@@ -68,6 +68,7 @@ const UI = (() => {
            </button>
            <div class="header-dropdown-menu" id="headerDropdownMenu">
              <a href="${pagesPath}profile.html?id=${user.id || 1}" class="dropdown-item"><i class="fa-regular fa-user"></i> Hồ sơ cá nhân</a>
+             <a href="${pagesPath}my-proposals.html" class="dropdown-item"><i class="fa-solid fa-file-lines"></i> Đề xuất & Đóng góp</a>
              <a href="${pagesPath}visited.html" class="dropdown-item"><i class="fa-regular fa-calendar-check"></i> Nhật ký chuyến đi</a>
              <a href="${pagesPath}favorites.html" class="dropdown-item"><i class="fa-regular fa-heart"></i> Địa điểm yêu thích</a>
              <a href="${pagesPath}history.html" class="dropdown-item"><i class="fa-solid fa-clock-rotate-left"></i> Đã xem gần đây</a>
